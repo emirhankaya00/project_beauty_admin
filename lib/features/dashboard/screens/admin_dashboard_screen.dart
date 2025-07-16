@@ -14,7 +14,7 @@ import 'package:project_beauty_admin/features/dashboard/widgets/dashboard_card.d
 import 'package:project_beauty_admin/features/dashboard/widgets/dashboard_summary_widget.dart'; // DashboardSummaryWidget import edildi
 
 // Modül ekranlarını import et
-import 'package:project_beauty_admin/features/appointment_requests/screens/appointment_requests_list_screen.dart';
+import 'package:project_beauty_admin/features/appointment_requests/screens/appointment_requests_unified_screen.dart';
 import 'package:project_beauty_admin/features/staff_management/screens/staff_list_screen.dart';
 import 'package:project_beauty_admin/features/service_management/screens/service_list_screen.dart';
 // TODO: Diğer modül ekranlarını buraya import etmelisin (örn: customer_reviews_screen.dart, campaigns_screen.dart, statistics_reports_screen.dart)
@@ -104,7 +104,7 @@ class AdminDashboardScreen extends StatelessWidget {
                     'icon': AppIcons.appointmentRequests,
                     'metric': '3 Bekleyen',
                     'colors': [const Color(0xFFFEE140), const Color(0xFFFA709A)], // Figma'daki degrade örnekleri
-                    'screen': const AppointmentRequestsListScreen(), // Randevu İstekleri ekranı
+                    'screen': const AppointmentRequestsUnifiedScreen(), // Randevu İstekleri ekranı
                   },
                   {
                     'title': 'Personel Takibim',
@@ -175,8 +175,4 @@ class AdminDashboardScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class AppointmentRequestsListScreen {
-  const AppointmentRequestsListScreen();
 }
