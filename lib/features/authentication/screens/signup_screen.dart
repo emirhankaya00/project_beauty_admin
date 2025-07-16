@@ -202,7 +202,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       'Giriş Yap',
                       style: AppTextStyles.bodyText1.copyWith(
                         color: AppColors.primaryColor,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

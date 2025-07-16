@@ -42,7 +42,6 @@ class AdminDashboardScreen extends StatelessWidget {
             // Arama Çubuğu (Figma'daki gibi)
             const SearchBarWidget(
               hintText: 'Ara...',
-              // onChanged: (query) { /* Arama sorgusu değiştiğinde yapılacaklar */ },
               // onSubmitted: (query) { /* Arama butonu basıldığında yapılacaklar */ },
             ),
             const SizedBox(height: 24.0),
