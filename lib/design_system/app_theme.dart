@@ -130,9 +130,9 @@ class AppTheme {
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: AppColors.primaryColor, // Alt navigasyon çubuğu arka planı
       selectedItemColor: AppColors.white, // Seçili ikon rengi
-      unselectedItemColor: AppColors.white.withOpacity(0.7), // Seçili olmayan ikon rengi
+      unselectedItemColor: AppColors.white.withValues(alpha: 0.7), // Seçili olmayan ikon rengi
       selectedLabelStyle: AppTextStyles.bodyText2.copyWith(color: AppColors.white),
-      unselectedLabelStyle: AppTextStyles.bodyText2.copyWith(color: AppColors.white.withOpacity(0.7)),
+      unselectedLabelStyle: AppTextStyles.bodyText2.copyWith(color: AppColors.white.withValues(alpha: 0.7)),
       type: BottomNavigationBarType.fixed, // İkonların sabit kalmasını sağlar
       elevation: 10.0, // Gölge
     ),

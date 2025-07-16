@@ -1,16 +1,19 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart'; // Rendering debug bayrakları için import edildi
+import 'package:flutter/rendering.dart'; // Rendering debug bayrakları için import edi
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:project_beauty_admin/design_system/app_theme.dart'; // Uygulama temamızı import ediyoruz
 import 'package:project_beauty_admin/features/authentication/screens/admin_login_screen.dart'; // Giriş sayfamızı import ediyoruz
 
 /// Uygulamanın ana giriş noktası.
 /// `runApp` fonksiyonu ile uygulamanın kök widget'ını başlatır.
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Yeni satır
   // --- ÖNEMLİ: TÜM DEBUG GÖRSELLEŞTİRME BAYRAKLARINI KAPALI TUT ---
   // Bu bayraklar, layout (yerleşim) hatalarını tetikleyebilir
   // veya performansı olumsuz etkileyebilir.
+  initializeDateFormatting('tr_TR',null).then((_) { // Yeni satır
   debugPaintSizeEnabled = false;
   debugPaintBaselinesEnabled = false;
   debugPaintPointersEnabled = false;
@@ -21,6 +24,7 @@ void main() {
 
   // Flutter uygulamasını başlat
   runApp(const MyApp());
+  });
 }
 
 /// Uygulamanın kök widget'ı.

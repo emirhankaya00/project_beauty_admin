@@ -21,7 +21,7 @@ class CustomCard extends StatelessWidget {
   /// Varsayılan özel kart.
   /// Beyaz arka plan, büyük yuvarlaklık ve varsayılan gölgeye sahiptir.
   const CustomCard({
-    Key? key,
+    super.key,
     required this.child,
     this.borderRadius,
     this.padding,
@@ -31,7 +31,7 @@ class CustomCard extends StatelessWidget {
     this.border,
     this.gradient,
     this.onTap, // onTap eklendi
-  }) : super(key: key);
+  });
 
   /// Kenarlıklı (stroklu) kart varyasyonu.
   /// Beyaz arka plan, orta yuvarlaklık ve ana tema renginde kenarlığa sahiptir.

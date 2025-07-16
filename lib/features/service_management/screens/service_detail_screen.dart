@@ -7,7 +7,6 @@ import 'package:project_beauty_admin/design_system/extensions/context_extensions
 import 'package:project_beauty_admin/features/shared_admin_components/admin_app_bar.dart';
 import 'package:project_beauty_admin/data/models/service_model.dart'; // IMPORT YOLU DÜZELTİLDİ: service_models.dart
 import 'package:project_beauty_admin/design_system/app_border_radius.dart';
-import 'package:project_beauty_admin/design_system/widgets/custom_card.dart';
 
 class ServiceDetailScreen extends StatelessWidget {
   final ServiceItem service;

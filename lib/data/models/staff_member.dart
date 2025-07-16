@@ -1,6 +1,4 @@
-// lib/features/staff_management/models/staff_member.dart
 
-import 'package:flutter/material.dart';
 
 class StaffMember {
   final String id;

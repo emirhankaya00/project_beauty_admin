@@ -23,7 +23,7 @@ class CustomButton extends StatelessWidget {
   /// Varsayılan özel buton.
   /// Ana tema renginde arka plan, orta küçük yuvarlaklık ve beyaz metne sahiptir.
   const CustomButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.child,
     this.borderRadius,
@@ -34,12 +34,12 @@ class CustomButton extends StatelessWidget {
     this.foregroundColor,
     this.width,
     this.height,
-  }) : super(key: key);
+  });
 
   /// Kenarlıklı (outlined) buton varyasyonu.
   /// Şeffaf arka plan, ana tema renginde kenarlık ve metne sahiptir.
-  CustomButton.outline({
-    Key? key,
+  const CustomButton.outline({
+    super.key,
     required this.onPressed,
     required this.child,
     this.borderRadius = AppBorderRadius.mediumSmall, // Varsayılan buton yuvarlaklığı
@@ -51,13 +51,13 @@ class CustomButton extends StatelessWidget {
     this.foregroundColor = AppColors.primaryColor, // Metin rengi ana tema rengi
     this.width,
     this.height,
-  }) : super(key: key);
+  });
 
   /// İkincil (secondary) buton varyasyonu.
   /// Genellikle daha az vurgulu aksiyonlar için kullanılır.
   /// Açık gri arka plan, koyu metin.
-  CustomButton.secondary({
-    Key? key,
+  const CustomButton.secondary({
+    super.key,
     required this.onPressed,
     required this.child,
     this.borderRadius = AppBorderRadius.mediumSmall, // Varsayılan buton yuvarlaklığı
@@ -68,7 +68,7 @@ class CustomButton extends StatelessWidget {
     this.foregroundColor = AppColors.darkGrey, // Koyu gri metin
     this.width,
     this.height,
-  }) : super(key: key);
+  });
 
 
   @override
