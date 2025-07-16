@@ -57,7 +57,7 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryColor, // Buton arka plan rengi
         foregroundColor: AppColors.white, // Buton metin rengi
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: AppBorderRadius.mediumSmall, // Buton kenar yuvarlaklığı
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Buton iç boşluğu
@@ -67,7 +67,7 @@ class AppTheme {
     ),
 
     // Kart teması (Card)
-    cardTheme: CardThemeData( // 'CardTheme' yerine 'CardThemeData' olarak düzeltildi
+    cardTheme: const CardThemeData( // 'CardTheme' yerine 'CardThemeData' olarak düzeltildi
       color: AppColors.white, // Kart arka plan rengi
       shape: RoundedRectangleBorder(
         borderRadius: AppBorderRadius.large, // Kart kenar yuvarlaklığı (Figma'ya göre)
@@ -85,7 +85,7 @@ class AppTheme {
       centerTitle: true, // Başlığı ortala
       titleTextStyle: AppTextStyles.headline3.copyWith(color: AppColors.white), // AppBar başlık stili
       toolbarHeight: 60.0, // AppBar yüksekliği
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppBorderRadius.bottomOnlyMedium, // Alt kenarları yuvarlatılmış AppBar (Figma'daki gibi)
       ),
     ),
@@ -94,23 +94,23 @@ class AppTheme {
     inputDecorationTheme: InputDecorationTheme(
       filled: true, // Arka plan doldurulsun
       fillColor: AppColors.inputFillColor, // Doldurma rengi
-      border: OutlineInputBorder(
+      border: const OutlineInputBorder(
         borderRadius: AppBorderRadius.small, // Input kenar yuvarlaklığı
         borderSide: BorderSide.none, // Varsayılan kenarlığı kaldır
       ),
-      enabledBorder: OutlineInputBorder(
+      enabledBorder: const OutlineInputBorder(
         borderRadius: AppBorderRadius.small,
         borderSide: BorderSide.none, // Etkin durumda kenarlık yok
       ),
-      focusedBorder: OutlineInputBorder(
+      focusedBorder: const OutlineInputBorder(
         borderRadius: AppBorderRadius.small,
         borderSide: BorderSide(color: AppColors.primaryColor, width: 2.0), // Odaklandığında ana tema renginde kenarlık
       ),
-      errorBorder: OutlineInputBorder(
+      errorBorder: const OutlineInputBorder(
         borderRadius: AppBorderRadius.small,
         borderSide: BorderSide(color: AppColors.red, width: 2.0), // Hata durumunda kırmızı kenarlık
       ),
-      focusedErrorBorder: OutlineInputBorder(
+      focusedErrorBorder: const OutlineInputBorder(
         borderRadius: AppBorderRadius.small,
         borderSide: BorderSide(color: AppColors.red, width: 2.0),
       ),
@@ -140,7 +140,7 @@ class AppTheme {
     // Dialog teması
     dialogTheme: DialogThemeData( // 'DialogTheme' yerine 'DialogThemeData' olarak düzeltildi
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppBorderRadius.medium, // Diyalog kutularının kenar yuvarlaklığı
       ),
       elevation: 8.0,
@@ -152,7 +152,7 @@ class AppTheme {
     snackBarTheme: SnackBarThemeData(
       backgroundColor: AppColors.primaryColor,
       contentTextStyle: AppTextStyles.bodyText1.copyWith(color: AppColors.white),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppBorderRadius.small,
       ),
       behavior: SnackBarBehavior.floating,

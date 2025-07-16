@@ -27,7 +27,7 @@ class CustomInputField extends StatelessWidget {
 
   /// Varsayılan özel input alanı.
   const CustomInputField({
-    Key? key,
+    super.key,
     this.controller,
     this.hintText,
     this.keyboardType,
@@ -43,11 +43,11 @@ class CustomInputField extends StatelessWidget {
     this.minLines,
     this.enabled = true, // Varsayılan olarak etkin
     this.labelText,
-  }) : super(key: key);
+  });
 
   /// Çok satırlı metin girişi için özel input alanı.
-  CustomInputField.multiline({
-    Key? key,
+  const CustomInputField.multiline({
+    super.key,
     this.controller,
     this.hintText,
     this.keyboardType = TextInputType.multiline, // Çok satırlı klavye
@@ -63,7 +63,7 @@ class CustomInputField extends StatelessWidget {
     this.minLines = 3, // Minimum 3 satır
     this.enabled = true,
     this.labelText,
-  }) : super(key: key);
+  });
 
 
   @override
@@ -93,23 +93,23 @@ class CustomInputField extends StatelessWidget {
         fillColor: AppColors.inputFillColor, // Arka plan rengi (açık gri)
 
         // Kenarlık stilleri (AppTheme'den gelen varsayılanları geçersiz kılar veya tamamlar)
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: AppBorderRadius.small, // Yuvarlak kenarlar (AppBorderRadius.small kullanıldı)
           borderSide: BorderSide.none, // Varsayılan kenarlığı kaldır
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: AppBorderRadius.small,
           borderSide: BorderSide.none, // Etkin durumda kenarlık yok
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderRadius: AppBorderRadius.small,
           borderSide: BorderSide(color: AppColors.primaryColor, width: 2.0), // Odaklandığında ana tema renginde kenarlık
         ),
-        errorBorder: OutlineInputBorder(
+        errorBorder: const OutlineInputBorder(
           borderRadius: AppBorderRadius.small,
           borderSide: BorderSide(color: AppColors.red, width: 2.0), // Hata durumunda kırmızı kenarlık
         ),
-        focusedErrorBorder: OutlineInputBorder(
+        focusedErrorBorder: const OutlineInputBorder(
           borderRadius: AppBorderRadius.small,
           borderSide: BorderSide(color: AppColors.red, width: 2.0),
         ),

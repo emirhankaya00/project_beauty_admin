@@ -14,17 +14,17 @@ class SearchBarWidget extends StatelessWidget {
   final TextEditingController? controller; // Arama çubuğu kontrolcüsü
 
   const SearchBarWidget({
-    Key? key,
+    super.key,
     this.hintText = 'Ara...', // Varsayılan ipucu metni
     this.onChanged,
     this.onSubmitted,
     this.controller,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.inputFillColor, // Gri arka plan rengi
         borderRadius: AppBorderRadius.small, // Yuvarlak kenarlar
       ),

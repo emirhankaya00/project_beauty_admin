@@ -9,7 +9,7 @@ import 'package:project_beauty_admin/design_system/extensions/context_extensions
 /// Admin Paneli için özelleştirilmiş çekmece menü (Drawer) widget'ı.
 /// Admin panelinin ana başlıklarına navigasyon sağlar.
 class AdminDrawer extends StatelessWidget {
-  const AdminDrawer({Key? key}) : super(key: key);
+  const AdminDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class AdminDrawer extends StatelessWidget {
         children: <Widget>[
           // Drawer Başlığı / Kullanıcı Bilgisi Alanı
           DrawerHeader(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.primaryColor, // Ana tema renginde başlık
             ),
             child: Column(
@@ -127,7 +127,7 @@ class AdminDrawer extends StatelessWidget {
             onTap: () {
               context.pop(); // Drawer'ı kapat
               // TODO: Ayarlar sayfasına yönlendir
-              print('Ayarlar tıklandı');
+              debugPrint('Ayarlar tıklandı');
             },
           ),
           _buildDrawerItem(
@@ -137,7 +137,7 @@ class AdminDrawer extends StatelessWidget {
             onTap: () {
               context.pop(); // Drawer'ı kapat
               // TODO: Çıkış yapma işlemi ve giriş sayfasına yönlendirme
-              print('Çıkış Yap tıklandı');
+              debugPrint('Çıkış Yap tıklandı');
             },
           ),
         ],

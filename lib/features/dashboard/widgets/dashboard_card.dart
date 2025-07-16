@@ -15,13 +15,13 @@ class DashboardCard extends StatelessWidget {
   final VoidCallback? onTap; // Karta tıklandığında çalışacak fonksiyon
 
   const DashboardCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
     required this.metric,
     required this.gradientColors,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

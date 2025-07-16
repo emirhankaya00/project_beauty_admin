@@ -12,7 +12,7 @@ import 'package:project_beauty_admin/design_system/extensions/context_extensions
 /// Kayıt Ol Sayfası
 /// Yeni kullanıcıların e-posta/telefon numarası ve şifre ile kayıt olmasını sağlar.
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -53,9 +53,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       // Örneğin: AuthRepository().signUp(emailPhone, password);
 
       // Şimdilik sadece konsola yazdıralım
-      print('Kayıt Denemesi:');
-      print('E-posta/Telefon: $emailPhone');
-      print('Şifre: $password');
+      debugPrint('Kayıt Denemesi:');
+      debugPrint('E-posta/Telefon: $emailPhone');
+      debugPrint('Şifre: $password');
 
       // Başarılı kayıt sonrası kullanıcıya bilgi verip giriş sayfasına yönlendirme
       context.showSnackBar('Kayıt başarılı! Lütfen giriş yapın.');
@@ -77,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         backgroundColor: AppColors.primaryColor, // AppBar arka plan rengi
         elevation: 0, // Gölge yok
         centerTitle: true, // Başlığı ortala
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: AppBorderRadius.bottomOnlyMedium, // Alt kenarları yuvarlatılmış
         ),
       ),
@@ -173,12 +173,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       CustomButton(
                         onPressed: _handleSignUp,
                         borderRadius: AppBorderRadius.mediumSmall,
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Text(
                           'Kayıt Ol',
                           style: AppTextStyles.buttonText,
                         ),
-                        backgroundColor: AppColors.primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
                       ),
                     ],
                   ),

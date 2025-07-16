@@ -10,11 +10,11 @@ class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading; // AppBar'ın solundaki widget (geri butonu, menü ikonu vb.)
 
   const AdminAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.actions,
     this.leading, // Yeni eklenen leading parametresi
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -15,7 +15,7 @@ import 'package:project_beauty_admin/features/dashboard/screens/admin_dashboard_
 /// Kullanıcıların e-posta/telefon numarası ve şifre ile giriş yapmasını sağlar.
 /// Figma tasarımına (image_588c9d.png) ve belirlenen tasarım prensiplerine uygun olarak tasarlanmıştır.
 class AdminLoginScreen extends StatefulWidget {
-  const AdminLoginScreen({Key? key}) : super(key: key);
+  const AdminLoginScreen({super.key});
 
   @override
   State<AdminLoginScreen> createState() => _AdminLoginScreenState();
@@ -53,7 +53,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       // Örneğin: AuthRepository().login(emailPhone, password);
 
       // Şimdilik sadece konsola yazdıralım
-      print('Giriş Denemesi: Doğrulandı.');
+      debugPrint('Giriş Denemesi: Doğrulandı.');
       // print('E-posta/Telefon: $emailPhone');
       // print('Şifre: $password');
 
@@ -142,13 +142,13 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       // Giriş Yap Butonu
                       CustomButton(
                         onPressed: _handleLogin, // Butona basıldığında _handleLogin fonksiyonunu çağır
-                        borderRadius: AppBorderRadius.mediumSmall, // Butonun border radius'u
+                        borderRadius: AppBorderRadius.mediumSmall,
+                        backgroundColor: AppColors.primaryColor, // Buton arka plan rengi
+                        padding: const EdgeInsets.symmetric(vertical: 16.0), // Butonun border radius'u
                         child: Text(
                           'Giriş yap',
                           style: AppTextStyles.buttonText, // Buton metin stili
-                        ),
-                        backgroundColor: AppColors.primaryColor, // Buton arka plan rengi
-                        padding: const EdgeInsets.symmetric(vertical: 16.0), // Buton iç boşluğu
+                        ), // Buton iç boşluğu
                       ),
                     ],
                   ),
@@ -161,7 +161,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               TextButton(
                 onPressed: () {
                   // TODO: Şifremi Unuttum sayfasına yönlendirme
-                  print('Şifremi Unuttum Tıklandı');
+                  debugPrint('Şifremi Unuttum Tıklandı');
                 },
                 child: Text(
                   'Şifremi Unuttum?',

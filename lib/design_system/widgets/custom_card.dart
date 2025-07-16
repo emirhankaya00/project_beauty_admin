@@ -35,8 +35,8 @@ class CustomCard extends StatelessWidget {
 
   /// Kenarlıklı (stroklu) kart varyasyonu.
   /// Beyaz arka plan, orta yuvarlaklık ve ana tema renginde kenarlığa sahiptir.
-  CustomCard.bordered({
-    Key? key,
+  const CustomCard.bordered({
+    super.key,
     required this.child,
     this.borderRadius,
     this.padding,
@@ -47,12 +47,12 @@ class CustomCard extends StatelessWidget {
         BorderSide(color: AppColors.strokeColor, width: 1.0)), // Ana tema renginde 1px kenarlık
     this.gradient,
     this.onTap, // onTap eklendi
-  }) : super(key: key);
+  });
 
   /// Degrade arka planlı kart varyasyonu.
   /// Figma'daki Ana Sayfa kartları gibi degrade arka planlara sahiptir.
-  CustomCard.gradient({
-    Key? key,
+  const CustomCard.gradient({
+    super.key,
     required this.child,
     required this.gradient, // Degrade zorunlu
     this.borderRadius = AppBorderRadius.large, // Büyük yuvarlaklık
@@ -62,12 +62,12 @@ class CustomCard extends StatelessWidget {
     this.shadowColor = AppColors.shadowColor,
     this.border,
     this.onTap, // onTap eklendi
-  }) : super(key: key);
+  });
 
   /// Küçük boyutlu kart varyasyonu.
   /// Daha küçük yuvarlaklık ve daha az dolguya sahiptir.
-  CustomCard.small({
-    Key? key,
+  const CustomCard.small({
+    super.key,
     required this.child,
     this.borderRadius = AppBorderRadius.small, // Küçük yuvarlaklık (6.0)
     this.padding = const EdgeInsets.all(12.0), // Daha az iç boşluk
@@ -77,7 +77,7 @@ class CustomCard extends StatelessWidget {
     this.border,
     this.gradient,
     this.onTap, // onTap eklendi
-  }) : super(key: key);
+  });
 
 
   @override

@@ -12,11 +12,11 @@ class DashboardSummaryWidget extends StatelessWidget {
   final IconData icon; // Özet öğesinin ikonu
 
   const DashboardSummaryWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     required this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
