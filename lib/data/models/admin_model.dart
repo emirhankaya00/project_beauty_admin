@@ -21,22 +21,25 @@ class AdminModel {
     required this.updatedAt,
   });
 
+  // Gelen veride bir alan eksik/null olsa bile hata vermeyecek,
+  // varsayılan bir değer atayacak şekilde güncellendi.
   factory AdminModel.fromJson(Map<String, dynamic> json) {
     return AdminModel(
-      adminId: json['admin_id'],
-      saloonId: json['saloon_id'],
-      username: json['username'],
-      name: json['name'],
-      surname: json['surname'],
+      adminId: json['admin_id'] ?? 'hata-id-yok',
+      saloonId: json['saloon_id'] ?? 'hata-salon-id-yok',
+      username: json['username'] ?? '',
+      name: json['name'] ?? 'İsimsiz',
+      surname: json['surname'] ?? 'Kullanıcı',
       role: AdminRole.values.firstWhere(
-              (e) => e.name == json['role'],
-              orElse: () => AdminRole.worker,
+            (e) => e.name == json['role'],
+        orElse: () => AdminRole.worker,
       ),
-      createdAt: DateTime.tryParse(json['created_at']) ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updated_at']) ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
     );
   }
 
+  // toJson fonksiyonu aynı kalabilir.
   Map<String, dynamic> toJson() {
     return {
       'admin_id': adminId,
@@ -44,7 +47,7 @@ class AdminModel {
       'username': username,
       'name': name,
       'surname': surname,
-      'role': role,
+      'role': role.name,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };

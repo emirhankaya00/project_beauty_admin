@@ -1,93 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-// main.dart dosyasında oluşturduğun global supabase değişkenini import ediyoruz
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:project_beauty_admin/main.dart';
+import '../../data/models/admin_model.dart';
 
 class AuthViewModel with ChangeNotifier {
-  // State'leri (durumları) tutan değişkenler
   bool _isLoading = false;
   String? _errorMessage;
+  AdminModel? _currentAdmin;
 
-  // UI'ın (arayüzün) bu değişkenlere sadece okuma amaçlı erişmesini sağlayan getter'lar
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  AdminModel? get currentAdmin => _currentAdmin;
 
-  /// UI'da hata mesajı gösterildikten sonra onu temizlemek için kullanılır.
   void clearError() {
     _errorMessage = null;
   }
 
-  /// Giriş yapma işlemini yöneten ana fonksiyon
   Future<bool> login(String email, String password) async {
-    // İşlem başladığında loading animasyonunu göster
     _setLoading(true);
-    // Varsa eski hata mesajını temizle
     _errorMessage = null;
 
     try {
-      // ADIM 1: SUPABASE AUTH İLE KİMLİK DOĞRULAMA
+      // 1. ADIM: SADECE KİMLİK DOĞRULAMA
       final authResponse = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
-      // Yanıtta kullanıcı bilgisi yoksa bir sorun var demektir.
       if (authResponse.user == null) {
-        throw const AuthException('Kullanıcı bilgisi alınamadı. Lütfen tekrar deneyin.');
+        throw const AuthException('Kullanıcı bilgisi alınamadı.');
       }
 
       final user = authResponse.user!;
 
-      // ADIM 2: KULLANICININ 'admins' TABLOSUNDA YETKİSİ VAR MI KONTROL ET
-      final adminCheck = await supabase
-          .from('admins') // 'admins' tablosuna bak
-          .select('admin_id') // Herhangi bir sütunu seçmemiz yeterli, var mı yok mu diye bakıyoruz
-          .eq('admin_id', user.id) // Supabase Auth ID'si ile 'admins' tablosundaki 'admin_id' eşleşiyor mu?
-          .maybeSingle(); // Kaydı bulmaya çalış, bulamazsan hata verme, null dön.
+      // 2. ADIM: YETKİ KONTROLÜ
+      final adminData = await supabase
+          .from('admins')
+          .select()
+          .eq('admin_id', user.id)
+          .single(); // Kayıt yoksa hata fırlatır
 
-      // adminCheck null ise, kullanıcı doğrulanmış ama admin değil demektir.
-      if (adminCheck == null) {
-        // GÜVENLİK ADIMI: Yetkisi olmayan kullanıcının oturumunu hemen kapat!
-        await supabase.auth.signOut();
-        // Anlaşılır bir hata mesajı fırlat
-        throw const AuthException('Bu panele erişim yetkiniz bulunmamaktadır.');
-      }
+      // 3. ADIM: GÜVENLİ MODELİ KULLANARAK VERİYİ İŞLEME
+      _currentAdmin = AdminModel.fromJson(adminData);
 
-      // Her iki kontrol de başarılı, işlem tamam.
       _setLoading(false);
       return true;
 
-    } on AuthException catch (e) {
-      // Supabase'den gelen kimlik doğrulama hatalarını yakala
-
-      // Hatanın detayını konsola yazdır (sorun tespiti için)
-      debugPrint('>>> SUPABASE AUTH HATASI: ${e.toString()}');
-
-      _errorMessage = e.message; // Hata mesajını UI'da göstermek için state'e ata
+    } on PostgrestException catch (_) {
+      // Bu hata, kullanıcı doğrulandı ama 'admins' tablosunda bulunamadı demektir.
+      await supabase.auth.signOut();
+      _errorMessage = 'Bu panele erişim yetkiniz bulunmamaktadır.';
       _setLoading(false);
-      return false; // İşlemin başarısız olduğunu belirt
+      return false;
+    } on AuthException catch (e) {
+      // BU, SENİN ALDIĞIN ASIL HATA
+      debugPrint('>>> AUTH HATASI: ${e.message}');
+      _errorMessage = e.message; // 'Invalid login credentials'
+      _setLoading(false);
+      return false;
     } catch (e) {
-      // Diğer beklenmedik hataları (network hatası vb.) yakala
-
-      // Hatanın detayını konsola yazdır
+      // Bu, bizim 'Null' hatasını veren genel hata yakalayıcıydı.
       debugPrint('>>> BİLİNMEYEN HATA: ${e.toString()}');
-
-      _errorMessage = 'Bilinmeyen bir hata oluştu.';
+      _errorMessage = 'Bilinmeyen bir hata oluştu: ${e.toString()}';
       _setLoading(false);
       return false;
     }
   }
 
-  /// Oturumu sonlandıran çıkış yapma fonksiyonu
   Future<void> signOut() async {
     await supabase.auth.signOut();
-    notifyListeners(); // Oturum durumu değiştiği için UI'ı bilgilendir
+    _currentAdmin = null;
+    notifyListeners();
   }
 
-  /// Yüklenme durumunu güncelleyen ve UI'a haber veren özel metot
   void _setLoading(bool value) {
     _isLoading = value;
-    notifyListeners(); // Provider'a bağlı widget'lara "kendinizi güncelleyin" sinyali gönder
+    notifyListeners();
   }
 }
