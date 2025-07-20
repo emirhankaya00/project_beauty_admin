@@ -1,0 +1,47 @@
+<!-- android/app/src/main/AndroidManifest.xml -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- İnternet erişimi izni: Uygulamanın internete bağlanabilmesi için gereklidir.
+         Firebase ve API servisleri için zorunludur. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Uygulamanın temel bileşenlerini ve ayarlarını tanımlar -->
+    <application
+        android:label="project_beauty_admin"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="false"
+        android:enableOnBackInvokedCallback="true">
+        <!-- 'android:usesCleartextTraffic="false"' HTTPS kullanımını teşvik eder,
+             'android:enableOnBackInvokedCallback="true"' Android 13+ geri hareketini etkinleştirir. -->
+
+        <!-- Ana etkinlik (MainActivity) uygulamanın başlatıldığı yerdir -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- 'android:exported="true"' diğer uygulamaların bu etkinliği başlatabilmesini sağlar.
+                 'android:launchMode="singleTop"' etkinliğin yığında birden fazla örneğinin oluşmasını engeller.
+                 'android:theme="@style/LaunchTheme"' uygulamanın başlatma temasını ayarlar.
+                 'android:configChanges' cihaz yapılandırma değişikliklerinde etkinliğin yeniden oluşturulmamasını sağlar.
+                 'android:hardwareAccelerated="true"' donanım hızlandırmayı etkinleştirir.
+                 'android:windowSoftInputMode="adjustResize"' klavye açıldığında ekranın yeniden boyutlandırılmasını sağlar. -->
+
+            <!-- Uygulama başlatıldığında MainActivity'nin varsayılan olarak açılmasını sağlayan intent filtreleri -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Flutter'ın uygulamanın arka planında çalışmasını sağlayan meta veri -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+</manifest>
