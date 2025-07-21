@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:project_beauty_admin/main.dart';
-import '../../data/models/admin_model.dart';
+import '../data/models/admin_model.dart';
 
 class AuthViewModel with ChangeNotifier {
   bool _isLoading = false;
