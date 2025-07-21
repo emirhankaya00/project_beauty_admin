@@ -4,8 +4,7 @@ import 'package:project_beauty_admin/design_system/widgets/custom_button.dart';
 import 'package:project_beauty_admin/design_system/widgets/custom_input_field.dart';
 import 'package:project_beauty_admin/features/dashboard/screens/admin_dashboard_screen.dart';
 import 'package:provider/provider.dart';
-
-import '../auth_viewmodel.dart';
+import '../../../viewmodels/auth_viewmodel.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});

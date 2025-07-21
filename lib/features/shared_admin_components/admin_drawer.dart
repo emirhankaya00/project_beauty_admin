@@ -8,7 +8,7 @@ import 'package:project_beauty_admin/features/authentication/screens/admin_login
 import 'package:provider/provider.dart';
 import 'package:project_beauty_admin/design_system/extensions/context_extensions.dart';
 
-import '../authentication/auth_viewmodel.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 
 class AdminDrawer extends StatelessWidget {
   const AdminDrawer({super.key});
