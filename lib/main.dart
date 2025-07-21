@@ -5,6 +5,7 @@ import 'package:project_beauty_admin/design_system/app_theme.dart';
 import 'package:project_beauty_admin/features/authentication/screens/admin_login_screen.dart';
 import 'package:project_beauty_admin/viewmodels/auth_viewmodel.dart';
 import 'package:project_beauty_admin/viewmodels/service_viewmodel.dart';
+import 'package:project_beauty_admin/viewmodels/staff_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,6 +38,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthViewModel()),
         ChangeNotifierProvider(create: (context) => ServiceViewModel()),
+        ChangeNotifierProvider(create: (context) => StaffViewModel()),
       ],
       child: const MyApp(),
     ),

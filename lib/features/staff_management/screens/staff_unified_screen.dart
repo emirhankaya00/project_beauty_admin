@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:project_beauty_admin/design_system/app_border_radius.dart';
 import 'package:project_beauty_admin/design_system/app_colors.dart';
 import 'package:project_beauty_admin/design_system/app_text_styles.dart';
-import 'package:project_beauty_admin/design_system/widgets/custom_card.dart';
 import 'package:project_beauty_admin/features/shared_admin_components/admin_app_bar.dart';
+import 'package:project_beauty_admin/viewmodels/auth_viewmodel.dart';
+import 'package:project_beauty_admin/viewmodels/staff_viewmodel.dart';
+import 'package:provider/provider.dart';
 
 class StaffUnifiedScreen extends StatefulWidget {
   const StaffUnifiedScreen({super.key});
@@ -13,260 +14,20 @@ class StaffUnifiedScreen extends StatefulWidget {
 }
 
 class _StaffUnifiedScreenState extends State<StaffUnifiedScreen> {
-  // Statik personel verileri (örnek amaçlı)
-  List<Map<String, dynamic>> _allStaffMembers = [
-    {
-      'id': '1',
-      'name': 'Elif Yılmaz',
-      'title': 'Kuaför',
-      'email': 'elif.yilmaz@salon.com',
-      'phone': '555-123-4567',
-      'isActive': true,
-      'imageUrl': 'https://via.placeholder.com/150/FF5733/FFFFFF?text=EY',
-      'services': ['Saç Kesimi', 'Saç Boyama', 'Fön'],
-      'description': 'Modern saç kesimleri ve renklendirme konusunda uzman.',
-    },
-    {
-      'id': '2',
-      'name': 'Can Demir',
-      'title': 'Manikürist',
-      'email': 'can.demir@salon.com',
-      'phone': '555-987-6543',
-      'isActive': true,
-      'imageUrl': 'https://via.placeholder.com/150/33FF57/FFFFFF?text=CD',
-      'services': ['Manikür', 'Pedikür', 'Kalıcı Oje'],
-      'description': 'Detaylı el ve ayak bakımı hizmetleri sunar.',
-    },
-    {
-      'id': '3',
-      'name': 'Zeynep Kaya',
-      'title': 'Cilt Uzmanı',
-      'email': 'zeynep.kaya@salon.com',
-      'phone': '555-111-2233',
-      'isActive': false,
-      'imageUrl': 'https://via.placeholder.com/150/3357FF/FFFFFF?text=ZK',
-      'services': ['Cilt Bakımı', 'Akne Tedavisi', 'Anti-aging'],
-      'description': 'Cilt sağlığı ve güzelliği üzerine kişiselleştirilmiş çözümler.',
-    },
-    {
-      'id': '4',
-      'name': 'Murat Aslan',
-      'title': 'Masör',
-      'email': 'murat.aslan@salon.com',
-      'phone': '555-444-5566',
-      'isActive': true,
-      'imageUrl': 'https://via.placeholder.com/150/FFFF33/000000?text=MA',
-      'services': ['Klasik Masaj', 'Spor Masajı', 'Aromaterapi'],
-      'description': 'Vücut ve zihin rahatlaması için çeşitli masaj teknikleri.',
-    },
-  ];
-
-  // Tüm mevcut hizmetlerin statik listesi (şimdilik)
-  final List<String> _availableServices = [
-    'Saç Kesimi',
-    'Saç Boyama',
-    'Fön',
-    'Manikür',
-    'Pedikür',
-    'Kalıcı Oje',
-    'Cilt Bakımı',
-    'Akne Tedavisi',
-    'Anti-aging',
-    'Klasik Masaj',
-    'Spor Masajı',
-    'Aromaterapi',
-    'Kaş Tasarımı',
-    'Ağda',
-    'Sakal Traşı',
-    'Topuz Yapımı'
-  ];
-
-  final TextEditingController _searchController = TextEditingController();
-  String _searchText = '';
-
-  List<Map<String, dynamic>> get _filteredStaffMembers {
-    if (_searchText.isEmpty) {
-      return _allStaffMembers;
-    }
-    return _allStaffMembers.where((staff) {
-      final name = staff['name']?.toLowerCase() ?? '';
-      final title = staff['title']?.toLowerCase() ?? '';
-      final searchTextLower = _searchText.toLowerCase();
-      return name.contains(searchTextLower) || title.contains(searchTextLower);
-    }).toList();
-  }
-
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() {
-      setState(() {
-        _searchText = _searchController.text;
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authViewModel = context.read<AuthViewModel>();
+      if (authViewModel.currentAdmin != null) {
+        context.read<StaffViewModel>().fetchInitialData(authViewModel.currentAdmin!);
+      }
     });
   }
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  // Personel Düzenleme Pop-up'ı
-  Future<void> _showEditStaffDialog(BuildContext context, Map<String, dynamic> staff) async {
-    final TextEditingController nameController = TextEditingController(text: staff['name']);
-    final TextEditingController titleController = TextEditingController(text: staff['title']);
-    final TextEditingController emailController = TextEditingController(text: staff['email']);
-    final TextEditingController phoneController = TextEditingController(text: staff['phone']);
-    final TextEditingController descriptionController = TextEditingController(text: staff['description']);
-
-    bool isActive = staff['isActive'] as bool;
-    List<String> selectedServices = List<String>.from(staff['services'] as List? ?? []); // Mevcut hizmetleri kopyala
-
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setInnerState) {
-            return AlertDialog(
-              title: Text('${staff['name']} Düzenle'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Adı Soyadı'),
-                      style: AppTextStyles.bodyText1,
-                    ),
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(labelText: 'Ünvanı'),
-                      style: AppTextStyles.bodyText1,
-                    ),
-                    TextField(
-                      controller: emailController,
-                      decoration: const InputDecoration(labelText: 'E-posta'),
-                      style: AppTextStyles.bodyText1,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    TextField(
-                      controller: phoneController,
-                      decoration: const InputDecoration(labelText: 'Telefon'),
-                      style: AppTextStyles.bodyText1,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Verilen Hizmetler:', style: AppTextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8.0, // Yatay boşluk
-                      runSpacing: 4.0, // Dikey boşluk
-                      children: _availableServices.map((service) {
-                        final isSelected = selectedServices.contains(service);
-                        return FilterChip(
-                          key: ValueKey(service), // FilterChip'e key eklendi
-                          label: Text(service),
-                          selected: isSelected,
-                          onSelected: (bool value) {
-                            setInnerState(() {
-                              if (value) {
-                                selectedServices.add(service);
-                              } else {
-                                selectedServices.remove(service);
-                              }
-                            });
-                          },
-                          selectedColor: AppColors.primaryColor.withOpacity(0.2),
-                          checkmarkColor: AppColors.primaryColor,
-                          labelStyle: AppTextStyles.bodyText2.copyWith(
-                            color: isSelected ? AppColors.primaryColor : AppColors.darkGrey,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppBorderRadius.small,
-                            side: BorderSide(
-                              color: isSelected ? AppColors.primaryColor : AppColors.lightGrey,
-                            ),
-                          ),
-                          backgroundColor: AppColors.lightGrey.withOpacity(0.5),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: descriptionController,
-                      decoration: const InputDecoration(labelText: 'Açıklama'),
-                      style: AppTextStyles.bodyText1,
-                      maxLines: 3,
-                      minLines: 1,
-                    ),
-                    SwitchListTile(
-                      title: Text('Aktif', style: AppTextStyles.bodyText1),
-                      value: isActive,
-                      onChanged: (bool value) {
-                        setInnerState(() {
-                          isActive = value;
-                        });
-                      },
-                      activeColor: AppColors.primaryColor,
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('İptal', style: TextStyle(color: AppColors.darkGrey)),
-                  onPressed: () {
-                    debugPrint('Düzenleme iptal edildi, değişiklik yapılmadı.');
-                    Navigator.of(dialogContext).pop();
-                    FocusScope.of(context).unfocus(); // Odak temizlendi
-                  },
-                ),
-                ElevatedButton(
-                  child: const Text('Kaydet', style: TextStyle(color: AppColors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryColor),
-                  onPressed: () {
-                    setState(() {
-                      final index = _allStaffMembers.indexWhere((s) => s['id'] == staff['id']);
-                      if (index != -1) {
-                        _allStaffMembers[index]['name'] = nameController.text;
-                        _allStaffMembers[index]['title'] = titleController.text;
-                        _allStaffMembers[index]['email'] = emailController.text;
-                        _allStaffMembers[index]['phone'] = phoneController.text;
-                        _allStaffMembers[index]['description'] = descriptionController.text;
-                        _allStaffMembers[index]['services'] = selectedServices;
-                        _allStaffMembers[index]['isActive'] = isActive;
-                      }
-                    });
-                    Navigator.of(dialogContext).pop();
-                    FocusScope.of(context).unfocus(); // Odak temizlendi
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${nameController.text} başarıyla güncellendi.')),
-                    );
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-
-    // Dialog kapandıktan sonra controllerları dispose et
-    nameController.dispose();
-    titleController.dispose();
-    emailController.dispose();
-    phoneController.dispose();
-    descriptionController.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<StaffViewModel>();
     return Scaffold(
       appBar: const AdminAppBar(title: 'Personel Yönetimi'),
       body: Padding(
@@ -274,175 +35,313 @@ class _StaffUnifiedScreenState extends State<StaffUnifiedScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Personel Listesi',
-              style: AppTextStyles.headline3.copyWith(color: AppColors.primaryColor),
-            ),
+            Text('Personel Listesi', style: AppTextStyles.headline3.copyWith(color: AppColors.primaryColor)),
             const SizedBox(height: 20),
             TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Personel Ara...',
-                prefixIcon: const Icon(Icons.search, color: AppColors.darkGrey),
-                border: OutlineInputBorder(
-                  borderRadius: AppBorderRadius.medium,
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: AppColors.lightGrey,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-              ),
-              style: AppTextStyles.bodyText1,
+              onChanged: (value) => viewModel.search(value),
+              decoration: const InputDecoration(hintText: 'Personel Ara...'),
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: _filteredStaffMembers.isEmpty
-                  ? Center(
-                child: Text(
-                  'Personel bulunmamaktadır.',
-                  style: AppTextStyles.bodyText1.copyWith(color: AppColors.darkGrey),
-                ),
-              )
-                  : ListView.builder(
-                itemCount: _filteredStaffMembers.length,
-                itemBuilder: (context, index) {
-                  final staff = _filteredStaffMembers[index];
-                  final bool isActive = staff['isActive'] as bool;
+            Expanded(child: _buildBody(viewModel)),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showEditStaffDialog(context, null),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: CustomCard(
-                      key: ValueKey(staff['id']), // Her bir CustomCard'a benzersiz key eklendi
-                      borderRadius: AppBorderRadius.medium,
-                      padding: const EdgeInsets.all(16.0),
-                      onTap: () {
-                        debugPrint('${staff['name']} detayları gösteriliyor.');
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage: NetworkImage(staff['imageUrl'] as String),
-                                radius: 30,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      staff['name'] as String,
-                                      style: AppTextStyles.headline3.copyWith(color: AppColors.black),
-                                    ),
-                                    Text(
-                                      staff['title'] as String,
-                                      style: AppTextStyles.bodyText1.copyWith(color: AppColors.darkGrey),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Aktif/Pasif durumu
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: isActive ? AppColors.green.withOpacity(0.1) : AppColors.red.withOpacity(0.1),
-                                  borderRadius: AppBorderRadius.small,
-                                ),
-                                child: Text(
-                                  isActive ? 'Aktif' : 'Pasif',
-                                  style: AppTextStyles.labelText.copyWith(
-                                    color: isActive ? AppColors.green : AppColors.red,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          // Detay bilgileri (telefon, e-posta, hizmetler, açıklama)
-                          Text(
-                            'E-posta: ${staff['email']}',
-                            style: AppTextStyles.bodyText2,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Telefon: ${staff['phone']}',
-                            style: AppTextStyles.bodyText2,
-                          ),
-                          const SizedBox(height: 8),
-                          if (staff['services'] != null && (staff['services'] as List).isNotEmpty) ...[
-                            Text(
-                              'Hizmetler:',
-                              style: AppTextStyles.bodyText2.copyWith(fontWeight: FontWeight.bold),
+  Widget _buildBody(StaffViewModel viewModel) {
+    if (viewModel.isLoading && viewModel.filteredStaffMembers.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (viewModel.errorMessage != null) {
+      return Center(child: Text('Hata: ${viewModel.errorMessage}'));
+    }
+    if (viewModel.filteredStaffMembers.isEmpty) {
+      return const Center(child: Text('Personel bulunamadı.'));
+    }
+    return ListView.builder(
+      itemCount: viewModel.filteredStaffMembers.length,
+      itemBuilder: (context, index) {
+        final staffData = viewModel.filteredStaffMembers[index];
+        return _buildStaffCard(context, staffData);
+      },
+    );
+  }
+
+  String _formatSpecialtyForDisplay(dynamic specialtyData) {
+    if (specialtyData == null) return 'Uzmanlık Belirtilmemiş';
+    if (specialtyData is List) {
+      if (specialtyData.isEmpty) return 'Uzmanlık Belirtilmemiş';
+      return specialtyData.join(', ');
+    }
+    if (specialtyData is String) {
+      if (specialtyData.isEmpty || specialtyData == '{}') return 'Uzmanlık Belirtilmemiş';
+      return specialtyData.replaceAll(RegExp(r'[{}"\\]'), '');
+    }
+    return 'Uzmanlık Belirtilmemiş';
+  }
+
+  Widget _buildStaffCard(BuildContext context, Map<String, dynamic> staff) {
+    final personalId = staff['personal_id'] as String? ?? '';
+    final name = staff['name'] as String? ?? 'İsimsiz';
+    final surname = staff['surname'] as String? ?? '';
+    final email = staff['email'] as String?;
+    final phone = staff['phone_number'] as String?;
+    final imageUrl = staff['profile_photo_url'] as String?;
+    final specialtyText = _formatSpecialtyForDisplay(staff['specialty']);
+    final assignedServicesData = staff['personal_saloon_services'] as List? ?? [];
+    final serviceNames = assignedServicesData.map((service) {
+      final serviceDetails = service['services'] as Map<String, dynamic>? ?? {};
+      return serviceDetails['service_name'] as String? ?? '';
+    }).where((name) => name.isNotEmpty).toList();
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12.0),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: imageUrl != null && imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                  child: (imageUrl == null || imageUrl.isEmpty) ? Text('${name.isNotEmpty ? name[0] : ''}${surname.isNotEmpty ? surname[0] : ''}') : null,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('$name $surname', style: AppTextStyles.headline3),
+                      Text(specialtyText, style: AppTextStyles.bodyText1),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (email != null && email.isNotEmpty) Text('E-posta: $email'),
+            if (phone != null && phone.isNotEmpty) Text('Telefon: $phone'),
+            const SizedBox(height: 8),
+            if (serviceNames.isNotEmpty) ...[
+              Text('Verdiği Hizmetler:', style: AppTextStyles.bodyText2.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 6.0,
+                children: serviceNames.map((name) => Chip(label: Text(name))).toList(),
+              ),
+            ],
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  OutlinedButton(
+                    onPressed: () => _showEditStaffDialog(context, staff),
+                    child: const Text('Düzenle'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: const Text('Personeli Sil'),
+                          content: Text("'$name $surname' adlı personeli silmek istediğinizden emin misiniz?"),
+                          actions: [
+                            TextButton(
+                              child: const Text('İptal'),
+                              onPressed: () => Navigator.of(dialogContext).pop(),
                             ),
-                            const SizedBox(height: 4),
-                            Wrap(
-                              spacing: 6.0,
-                              runSpacing: 4.0,
-                              children: (staff['services'] as List).map<Widget>((service) {
-                                return Chip(
-                                  label: Text(service as String, style: AppTextStyles.labelText),
-                                  backgroundColor: AppColors.primaryColor.withOpacity(0.1),
-                                  labelStyle: AppTextStyles.labelText.copyWith(color: AppColors.primaryColor),
-                                );
-                              }).toList(),
+                            ElevatedButton(
+                              child: const Text('Sil'),
+                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.red),
+                              onPressed: () {
+                                context.read<StaffViewModel>().deleteStaff(personalId);
+                                Navigator.of(dialogContext).pop();
+                              },
                             ),
                           ],
-                          if (staff['description'] != null && (staff['description'] as String).isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              'Açıklama: ${staff['description']}',
-                              style: AppTextStyles.bodyText2.copyWith(color: AppColors.grey),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          // Düzenle/Sil gibi aksiyon butonları
-                          const SizedBox(height: 16),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                OutlinedButton(
-                                  onPressed: () => _showEditStaffDialog(context, staff),
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: AppColors.darkGrey),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.medium),
-                                  ),
-                                  child: Text('Düzenle', style: AppTextStyles.buttonText.copyWith(color: AppColors.darkGrey, fontSize: 12)),
-                                ),
-                                const SizedBox(width: 8),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    debugPrint('${staff['name']} sil');
-                                    setState(() {
-                                      _allStaffMembers.removeWhere((s) => s['id'] == staff['id']);
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.red,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.medium),
-                                  ),
-                                  child: Text('Sil', style: AppTextStyles.buttonText.copyWith(fontSize: 12)),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.red.withOpacity(0.8)),
+                    child: const Text('Sil'),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showEditStaffDialog(BuildContext context, Map<String, dynamic>? staff) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return _EditStaffDialog(staff: staff);
+      },
+    );
+  }
+}
+
+// AYRI STATEFUL WIDGET (TÜM MANTIK BURADA)
+class _EditStaffDialog extends StatefulWidget {
+  final Map<String, dynamic>? staff;
+  const _EditStaffDialog({this.staff});
+
+  @override
+  State<_EditStaffDialog> createState() => _EditStaffDialogState();
+}
+
+class _EditStaffDialogState extends State<_EditStaffDialog> {
+  late final GlobalKey<FormState> _formKey;
+  late final TextEditingController nameController;
+  late final TextEditingController surnameController;
+  late final TextEditingController emailController;
+  late final TextEditingController phoneController;
+  late final TextEditingController photoController;
+  late final TextEditingController specialtyController;
+  late final Map<String, double> selectedServices;
+
+  bool get isNew => widget.staff == null;
+
+  @override
+  void initState() {
+    super.initState();
+    _formKey = GlobalKey<FormState>();
+    final staff = widget.staff;
+
+    nameController = TextEditingController(text: staff?['name']);
+    surnameController = TextEditingController(text: staff?['surname']);
+    emailController = TextEditingController(text: staff?['email']);
+    phoneController = TextEditingController(text: staff?['phone_number']);
+    photoController = TextEditingController(text: staff?['profile_photo_url']);
+
+    dynamic specialtyData = staff?['specialty'];
+    String initialSpecialtyText = '';
+    if (specialtyData is List) {
+      initialSpecialtyText = specialtyData.join(', ');
+    } else if (specialtyData is String) {
+      initialSpecialtyText = specialtyData.replaceAll(RegExp(r'[{}"\\]'), '');
+    }
+    specialtyController = TextEditingController(text: initialSpecialtyText);
+
+    selectedServices = {};
+    final assignedServices = (staff?['personal_saloon_services'] as List? ?? []);
+
+    for (final s in assignedServices) {
+      final serviceMap = s as Map<String, dynamic>?;
+      if (serviceMap == null) continue;
+      final servicesSubMap = serviceMap['services'] as Map<String, dynamic>?;
+      if (servicesSubMap == null || servicesSubMap['service_id'] == null) continue;
+      final priceNum = serviceMap['price'] as num?;
+      if (priceNum == null) continue;
+      final serviceId = servicesSubMap['service_id'] as String;
+      selectedServices[serviceId] = priceNum.toDouble();
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    surnameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    photoController.dispose();
+    specialtyController.dispose();
+    super.dispose();
+  }
+
+  void _onSavePressed() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final viewModel = context.read<StaffViewModel>();
+    final authViewModel = context.read<AuthViewModel>();
+
+    final specialtyList = specialtyController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+
+    viewModel.saveStaff(
+      admin: authViewModel.currentAdmin!,
+      personalId: widget.staff?['personal_id'],
+      name: nameController.text,
+      surname: surnameController.text,
+      email: emailController.text,
+      phone: phoneController.text,
+      photoUrl: photoController.text,
+      selectedServices: selectedServices,
+      specialty: specialtyList,
+    );
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final availableServices = context.read<StaffViewModel>().availableServices;
+
+    return AlertDialog(
+      title: Text(isNew ? 'Yeni Personel Ekle' : 'Personeli Düzenle'),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(controller: nameController, decoration: const InputDecoration(labelText: 'Adı'), validator: (v) => v!.isEmpty ? 'Boş olamaz' : null),
+              TextFormField(controller: surnameController, decoration: const InputDecoration(labelText: 'Soyadı'), validator: (v) => v!.isEmpty ? 'Boş olamaz' : null),
+              TextFormField(controller: specialtyController, decoration: const InputDecoration(labelText: 'Uzmanlık Alanları (virgülle ayırın)')),
+              TextFormField(controller: emailController, decoration: const InputDecoration(labelText: 'E-posta'), keyboardType: TextInputType.emailAddress),
+              TextFormField(controller: phoneController, decoration: const InputDecoration(labelText: 'Telefon'), keyboardType: TextInputType.phone),
+              TextFormField(controller: photoController, decoration: const InputDecoration(labelText: 'Fotoğraf URL')),
+              const SizedBox(height: 16),
+              Text('Verilen Hizmetler:', style: AppTextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8.0,
+                children: availableServices.map((service) {
+                  final serviceMap = service['services'] as Map<String, dynamic>? ?? {};
+                  final serviceId = serviceMap['service_id'] as String? ?? '';
+                  final serviceName = serviceMap['service_name'] as String? ?? 'Bilinmeyen';
+                  final price = (service['price'] as num?)?.toDouble() ?? 0.0;
+                  final isSelected = selectedServices.containsKey(serviceId);
+
+                  return FilterChip(
+                    label: Text(serviceName),
+                    selected: isSelected,
+                    onSelected: (bool value) {
+                      setState(() {
+                        if (value) {
+                          selectedServices[serviceId] = price;
+                        } else {
+                          selectedServices.remove(serviceId);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('İptal')),
+        ElevatedButton(onPressed: _onSavePressed, child: const Text('Kaydet')),
+      ],
     );
   }
 }

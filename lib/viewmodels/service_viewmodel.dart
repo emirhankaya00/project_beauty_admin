@@ -95,12 +95,14 @@ class ServiceViewModel with ChangeNotifier {
       notifyListeners();
     }
   }
-
-  Future<void> deleteService(String saloonServiceId) async {
+  Future<void> deleteService(String saloonServiceId, String serviceId) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _repository.deleteSaloonService(saloonServiceId);
+      // Repository'deki yeni fonksiyonu çağırıyoruz.
+      await _repository.deleteServiceAndAssociations(saloonServiceId, serviceId);
+
+      // Hizmeti yerel listeden de kaldırıyoruz.
       _services.removeWhere((s) => s['id'] == saloonServiceId);
       _errorMessage = null;
     } catch (e) {

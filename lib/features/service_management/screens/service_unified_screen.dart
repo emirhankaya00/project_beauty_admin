@@ -16,8 +16,6 @@ class ServiceUnifiedScreen extends StatefulWidget {
 }
 
 class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
-  final TextEditingController _searchController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -30,15 +28,8 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
   }
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ServiceViewModel>();
-
     return Scaffold(
       appBar: const AdminAppBar(title: 'Hizmet Yönetimi'),
       body: Padding(
@@ -49,7 +40,6 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
             Text('Hizmet Listesi', style: AppTextStyles.headline3.copyWith(color: AppColors.primaryColor)),
             const SizedBox(height: 20),
             TextField(
-              controller: _searchController,
               onChanged: (value) => viewModel.search(value),
               decoration: const InputDecoration(hintText: 'Hizmet Ara...'),
             ),
@@ -86,10 +76,11 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
 
   Widget _buildServiceCard(BuildContext context, Map<String, dynamic> serviceData) {
     final saloonServiceId = serviceData['id'] as String? ?? '';
+    final serviceInfo = serviceData['services'] as Map<String, dynamic>? ?? {};
+    final serviceId = serviceInfo['service_id'] as String? ?? '';
+    final serviceName = serviceInfo['service_name'] as String? ?? 'İsimsiz Servis';
     final price = (serviceData['price'] as num?)?.toDouble() ?? 0.0;
     final isActive = serviceData['is_active'] as bool? ?? false;
-    final serviceInfo = serviceData['services'] as Map<String, dynamic>? ?? {};
-    final serviceName = serviceInfo['service_name'] as String? ?? 'İsimsiz Servis';
     final description = serviceInfo['description'] as String?;
     final estimatedTime = ServiceModel.parseDuration(serviceInfo['estimated_time'] as String? ?? '00:00:00');
 
@@ -103,8 +94,9 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
             Text(serviceName, style: AppTextStyles.headline3),
             Text('${price.toStringAsFixed(2)} TL'),
             Text('Süre: ${estimatedTime.inMinutes} dk'),
-            if (description != null) Text(description),
+            if (description != null && description.isNotEmpty) Text(description),
             Text(isActive ? 'Aktif' : 'Pasif', style: TextStyle(color: isActive ? Colors.green : Colors.red)),
+            const SizedBox(height: 16),
             Align(
               alignment: Alignment.bottomRight,
               child: Row(
@@ -116,7 +108,31 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: () => context.read<ServiceViewModel>().deleteService(saloonServiceId),
+                    onPressed: () {
+                      // Silme onayı için AlertDialog göster
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: const Text('Hizmeti Sil'),
+                          content: Text("'$serviceName' adlı hizmeti silmek istediğinizden emin misiniz? Bu işlem, bu hizmeti veren tüm personellerden de kaldırılacaktır."),
+                          actions: [
+                            TextButton(
+                              child: const Text('İptal'),
+                              onPressed: () => Navigator.of(dialogContext).pop(),
+                            ),
+                            ElevatedButton(
+                              child: const Text('Sil'),
+                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.red),
+                              onPressed: () {
+                                context.read<ServiceViewModel>().deleteService(saloonServiceId, serviceId);
+                                Navigator.of(dialogContext).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.red),
                     child: const Text('Sil'),
                   ),
                 ],
@@ -140,6 +156,7 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
 
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setInnerState) {
@@ -161,7 +178,7 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
                   ],
                 ),
               ),
-              actions: [
+              actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
                   child: const Text('İptal'),
@@ -175,7 +192,9 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
                     final price = double.tryParse(priceController.text);
                     final duration = int.tryParse(durationController.text);
 
-                    if (name.isEmpty || price == null || duration == null) { return; }
+                    if (name.isEmpty || price == null || duration == null) {
+                      return;
+                    }
 
                     serviceViewModel.saveService(
                       admin: authViewModel.currentAdmin!,
@@ -187,6 +206,7 @@ class _ServiceUnifiedScreenState extends State<ServiceUnifiedScreen> {
                       description: descriptionController.text,
                       isActive: isActive,
                     );
+
                     Navigator.of(dialogContext).pop();
                   },
                   child: const Text('Kaydet'),

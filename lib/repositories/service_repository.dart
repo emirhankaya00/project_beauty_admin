@@ -74,4 +74,27 @@ class ServiceRepository {
       return updatedSaloonService;
     }
   }
+  Future<void> deleteServiceAndAssociations(String saloonServiceId, String serviceId) async {
+    try {
+      // Supabase'de bu iki işlemi tek bir transaction'da yapmak için
+      // bir veritabanı fonksiyonu (RPC) kullanmak en sağlıklısıdır.
+      // Şimdilik iki ayrı adımda yapıyoruz:
+
+      // 1. Adım: Bu hizmete atanmış tüm personellerin bağlantısını sil.
+      await supabase
+          .from('personal_saloon_services')
+          .delete()
+          .eq('service_id', serviceId);
+
+      // 2. Adım: Ana hizmet kaydını sil.
+      await supabase
+          .from('saloon_services')
+          .delete()
+          .eq('id', saloonServiceId);
+
+    } catch (e) {
+      print('Hizmet ve ilişkileri silinirken hata: $e');
+      rethrow;
+    }
+  }
 }
