@@ -89,7 +89,7 @@ class ServiceViewModel with ChangeNotifier {
       _errorMessage = null;
     } catch (e) {
       _errorMessage = 'Hizmet kaydedilirken bir hata oluştu.';
-      print('KAYDETME HATASI: $e'); // Hatanın ne olduğunu konsolda görmek için
+      debugPrint('KAYDETME HATASI: $e'); // Hatanın ne olduğunu konsolda görmek için
     } finally {
       _isLoading = false;
       notifyListeners();

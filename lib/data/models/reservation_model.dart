@@ -1,9 +1,13 @@
 
+import 'package:project_beauty_admin/data/models/personal_model.dart';
+
 import 'saloon_model.dart';
 import 'service_model.dart';
+import 'package:project_beauty_admin/data/models/user_model.dart';
 
 enum ReservationStatus {
   pending,
+  offered,
   confirmed,
   completed,
   cancelled,
@@ -23,6 +27,8 @@ class ReservationModel {
   final DateTime updatedAt;
   final SaloonModel? saloon;
   final ServiceModel? service;
+  final UserModel? user;
+  final PersonalModel? personal;
 
   ReservationModel({
     required this.reservationId,
@@ -37,6 +43,8 @@ class ReservationModel {
     required this.updatedAt,
     this.saloon, // Constructor'a eklendi
     this.service,
+    this.user,
+    this.personal,
   });
 
   factory ReservationModel.fromJson(Map<String, dynamic> json) {
@@ -47,7 +55,14 @@ class ReservationModel {
         service = ServiceModel.fromJson(serviceData);
       }
     }
-
+    UserModel? user;
+    if (json['profiles'] != null) { // Supabase'de public tablosu genelde 'profiles' olur.
+      user = UserModel.fromJson(json['profiles']);
+    }
+    PersonalModel? personal;
+    if (json['personals'] != null) {
+      personal = PersonalModel.fromJson(json['personals']);
+    }
     return ReservationModel(
       // --- NULL KONTROLLERİ EKLENDİ ---
       reservationId: json['reservation_id'] as String? ?? '', // null ise boş string ata
@@ -67,6 +82,8 @@ class ReservationModel {
           ? SaloonModel.fromJson(json['saloons'])
           : null,
       service: service,
+      user: user,
+      personal: personal,
     );
   }
 
@@ -83,5 +100,38 @@ class ReservationModel {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
+  }
+  ReservationModel copyWith({
+    String? reservationId,
+    String? userId,
+    String? saloonId,
+    String? personalId,
+    DateTime? reservationDate,
+    String? reservationTime,
+    double? totalPrice,
+    ReservationStatus? status, // Değiştirmek istediğimiz alan
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    SaloonModel? saloon,
+    ServiceModel? service,
+    UserModel? user,
+    PersonalModel? personal,
+  }) {
+    return ReservationModel(
+      reservationId: reservationId ?? this.reservationId,
+      userId: userId ?? this.userId,
+      saloonId: saloonId ?? this.saloonId,
+      personalId: personalId ?? this.personalId,
+      reservationDate: reservationDate ?? this.reservationDate,
+      reservationTime: reservationTime ?? this.reservationTime,
+      totalPrice: totalPrice ?? this.totalPrice,
+      status: status ?? this.status, // Eğer yeni bir status gelirse onu kullan, yoksa eskisini.
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      saloon: saloon ?? this.saloon,
+      service: service ?? this.service,
+      user: user ?? this.user,
+      personal: personal ?? this.personal,
+    );
   }
 }

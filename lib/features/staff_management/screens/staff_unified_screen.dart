@@ -173,7 +173,7 @@ class _StaffUnifiedScreenState extends State<StaffUnifiedScreen> {
                         ),
                       );
                     },
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.red.withOpacity(0.8)),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.red.withValues(alpha: 0.8)),
                     child: const Text('Sil'),
                   ),
                 ],

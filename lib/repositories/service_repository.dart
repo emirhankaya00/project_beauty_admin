@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:project_beauty_admin/main.dart';
 
 class ServiceRepository {
@@ -10,7 +11,7 @@ class ServiceRepository {
           .eq('saloon_id', saloonId);
       return List<Map<String, dynamic>>.from(data);
     } catch (e) {
-      print('Hizmetleri çekerken hata: $e');
+      debugPrint('Hizmetleri çekerken hata: $e');
       rethrow;
     }
   }
@@ -23,7 +24,7 @@ class ServiceRepository {
           .delete()
           .eq('id', saloonServiceId);
     } catch (e) {
-      print('Salon hizmeti silerken hata: $e');
+      debugPrint('Salon hizmeti silerken hata: $e');
       rethrow;
     }
   }
@@ -93,7 +94,7 @@ class ServiceRepository {
           .eq('id', saloonServiceId);
 
     } catch (e) {
-      print('Hizmet ve ilişkileri silinirken hata: $e');
+      debugPrint('Hizmet ve ilişkileri silinirken hata: $e');
       rethrow;
     }
   }

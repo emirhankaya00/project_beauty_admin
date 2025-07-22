@@ -35,7 +35,7 @@ class DashboardCard extends StatelessWidget {
         borderRadius: AppBorderRadius.large, // Figma'daki gibi büyük yuvarlaklık
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowColor.withOpacity(0.3), // Daha belirgin gölge
+            color: AppColors.shadowColor.withValues(alpha: 0.3), // Daha belirgin gölge
             blurRadius: 8.0,
             offset: const Offset(0, 4),
           ),
@@ -57,7 +57,7 @@ class DashboardCard extends StatelessWidget {
                   alignment: Alignment.topRight,
                   child: Icon(
                     icon,
-                    color: AppColors.white.withOpacity(0.8), // İkon rengi beyaz
+                    color: AppColors.white.withValues(alpha: 0.8), // İkon rengi beyaz
                     size: 48.0, // Daha büyük ikon
                   ),
                 ),
@@ -71,7 +71,7 @@ class DashboardCard extends StatelessWidget {
                     const SizedBox(height: 4.0),
                     Text(
                       metric,
-                      style: AppTextStyles.bodyText1.copyWith(color: AppColors.white.withOpacity(0.9)),
+                      style: AppTextStyles.bodyText1.copyWith(color: AppColors.white.withValues(alpha: 0.9)),
                     ),
                   ],
                 ),

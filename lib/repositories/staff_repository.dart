@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:project_beauty_admin/main.dart';
 
 class StaffRepository {
@@ -29,7 +30,7 @@ class StaffRepository {
 
       return List<Map<String, dynamic>>.from(data);
     } catch (e) {
-      print('Personelleri çekerken hata: $e');
+      debugPrint('Personelleri çekerken hata: $e');
       rethrow;
     }
   }
@@ -39,7 +40,7 @@ class StaffRepository {
     try {
       await supabase.rpc('handle_personal_and_services', params: params);
     } catch (e) {
-      print('Personel kaydedilirken RPC hatası: $e');
+      debugPrint('Personel kaydedilirken RPC hatası: $e');
       rethrow;
     }
   }
@@ -49,7 +50,7 @@ class StaffRepository {
     try {
       await supabase.from('personals').delete().eq('personal_id', personalId);
     } catch (e) {
-      print('Personel silerken hata: $e');
+      debugPrint('Personel silerken hata: $e');
       rethrow;
     }
   }

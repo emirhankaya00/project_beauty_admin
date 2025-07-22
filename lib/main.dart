@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:project_beauty_admin/design_system/app_theme.dart';
 import 'package:project_beauty_admin/features/authentication/screens/admin_login_screen.dart';
 import 'package:project_beauty_admin/viewmodels/auth_viewmodel.dart';
+import 'package:project_beauty_admin/viewmodels/reservation_viewmodel.dart';
 import 'package:project_beauty_admin/viewmodels/service_viewmodel.dart';
 import 'package:project_beauty_admin/viewmodels/staff_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AuthViewModel()),
         ChangeNotifierProvider(create: (context) => ServiceViewModel()),
         ChangeNotifierProvider(create: (context) => StaffViewModel()),
+        ChangeNotifierProvider(create: (context) => ReservationViewModel()),
       ],
       child: const MyApp(),
     ),
