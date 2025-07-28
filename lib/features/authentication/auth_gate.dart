@@ -1,4 +1,4 @@
-// lib/features/authentication/screens/auth_gate.dart
+// lib/features/authentication/salons/auth_gate.dart
 
 import 'package:flutter/material.dart';
 import 'package:project_beauty_admin/features/authentication/screens/admin_login_screen.dart';

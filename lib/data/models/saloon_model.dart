@@ -12,7 +12,7 @@ class SaloonModel {
   final String? email;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final List<ServiceModel> services; // <-- 1. YENİ ALAN: Hizmet listesi
+  final List<ServiceModel> services;
 
   SaloonModel({
     required this.saloonId,
@@ -26,14 +26,45 @@ class SaloonModel {
     this.email,
     required this.createdAt,
     required this.updatedAt,
-    this.services = const []
+    this.services = const [],
   });
+
+  /// Kopyalama ve güncelleme kolaylığı için copyWith
+  SaloonModel copyWith({
+    String? saloonId,
+    String? titlePhotoUrl,
+    String? saloonName,
+    String? saloonDescription,
+    String? saloonAddress,
+    double? latitude,
+    double? longitude,
+    String? phoneNumber,
+    String? email,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    List<ServiceModel>? services,
+  }) {
+    return SaloonModel(
+      saloonId: saloonId ?? this.saloonId,
+      titlePhotoUrl: titlePhotoUrl ?? this.titlePhotoUrl,
+      saloonName: saloonName ?? this.saloonName,
+      saloonDescription: saloonDescription ?? this.saloonDescription,
+      saloonAddress: saloonAddress ?? this.saloonAddress,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      email: email ?? this.email,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      services: services ?? this.services,
+    );
+  }
 
   factory SaloonModel.fromJson(Map<String, dynamic> json) {
     return SaloonModel(
-      saloonId: json['saloon_id'] as String? ?? '', // null gelirse boş string ata
+      saloonId: json['saloon_id'] as String? ?? '',
       titlePhotoUrl: json['title_photo_url'] as String?,
-      saloonName: json['saloon_name'] as String? ?? 'İsimsiz Salon', // null gelirse varsayılan isim ata
+      saloonName: json['saloon_name'] as String? ?? 'İsimsiz Salon',
       saloonDescription: json['saloon_description'] as String?,
       saloonAddress: json['saloon_address'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),

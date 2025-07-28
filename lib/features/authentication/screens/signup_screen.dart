@@ -1,4 +1,4 @@
-// lib/features/authentication/screens/signup_screen.dart
+// lib/features/authentication/salons/signup_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:project_beauty_admin/design_system/app_colors.dart';

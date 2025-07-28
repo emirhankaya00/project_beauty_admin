@@ -1,4 +1,4 @@
-// lib/features/campaigns/screens/campaigns_screen.dart
+// lib/features/campaigns/salons/campaigns_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

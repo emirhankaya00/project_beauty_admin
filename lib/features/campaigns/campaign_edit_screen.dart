@@ -1,34 +1,34 @@
-// lib/features/campaigns/screens/campaign_edit_screen.dart
+// lib/features/campaigns/salons/campaign_edit_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import 'package:project_beauty_admin/data/models/campaign_model.dart';
 import 'package:project_beauty_admin/data/models/saloon_service_list_item.dart';
 import 'package:project_beauty_admin/viewmodels/campaigns_viewmodel.dart';
 import 'package:project_beauty_admin/design_system/app_colors.dart';
 import 'package:project_beauty_admin/design_system/app_text_styles.dart';
-
-import '../../repositories/campaign_repository.dart';
+import 'package:project_beauty_admin/repositories/campaign_repository.dart';
 
 class CampaignEditScreen extends StatefulWidget {
   final String saloonId;
   final CampaignModel campaign;
 
   const CampaignEditScreen({
-    super.key,
+    Key? key,
     required this.saloonId,
     required this.campaign,
-  });
+  }) : super(key: key);
 
   @override
   State<CampaignEditScreen> createState() => _CampaignEditScreenState();
 }
 
 class _CampaignEditScreenState extends State<CampaignEditScreen> {
-  final _titleController = TextEditingController();
-  final _descController = TextEditingController();
-  final _discountValueController = TextEditingController();
+  final _titleCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  final _discountValueCtrl = TextEditingController();
 
   DiscountType _discountType = DiscountType.percent;
   DateTime? _start;
@@ -36,20 +36,22 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
 
   List<SaloonServiceListItem> _services = [];
   final _selectedServiceIds = <String>{};
+  bool _loading = true;
 
-  bool _loadingServices = true;
-  final _dateFmt = DateFormat('dd.MM.yyyy HH:mm', 'tr_TR');
+  final _fmt = DateFormat('dd.MM.yyyy HH:mm', 'tr_TR');
 
   @override
   void initState() {
     super.initState();
+    // Mevcut kampanya verisini alanlara bas
     final c = widget.campaign;
-    _titleController.text = c.title;
-    _descController.text = c.description ?? '';
+    _titleCtrl.text = c.title;
+    _descCtrl.text = c.description ?? '';
     _discountType = c.discountType;
-    _discountValueController.text = c.discountValue.toStringAsFixed(0);
+    _discountValueCtrl.text = c.discountValue.toStringAsFixed(0);
     _start = c.startDate;
     _end = c.endDate;
+    // Hizmetleri yükle
     _loadServices();
   }
 
@@ -58,14 +60,19 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
       final list = await CampaignRepository().fetchSaloonServices(widget.saloonId);
       setState(() {
         _services = list;
-        _loadingServices = false;
+        // Kampanyaya ait service_id'leri seçili hâle getir
+        _selectedServiceIds.addAll(
+          list
+              .where((s) => widget.campaign.id /* burada campaign içinde seçili service_id'leri tutmalısın */ == s.id)
+              .map((s) => s.id),
+        );
       });
     } catch (e) {
-      if (!mounted) return;
-      setState(() => _loadingServices = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Hizmetler yüklenemedi: $e')),
       );
+    } finally {
+      setState(() => _loading = false);
     }
   }
 
@@ -92,8 +99,9 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
   }
 
   Future<void> _save() async {
-    if (_titleController.text.isEmpty ||
-        _discountValueController.text.isEmpty ||
+    // geçerlilik kontrolleri
+    if (_titleCtrl.text.isEmpty ||
+        _discountValueCtrl.text.isEmpty ||
         _start == null ||
         _end == null ||
         _selectedServiceIds.isEmpty) {
@@ -102,7 +110,7 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
       );
       return;
     }
-    final val = double.tryParse(_discountValueController.text);
+    final val = double.tryParse(_discountValueCtrl.text);
     if (val == null || val <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Geçerli bir indirim değeri gir.')),
@@ -111,17 +119,19 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
     }
 
     final vm = context.read<CampaignsViewModel>();
+    final updated = CampaignModel(
+      id: widget.campaign.id,
+      saloonId: widget.saloonId,
+      title: _titleCtrl.text.trim(),
+      description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+      discountType: _discountType,
+      discountValue: val,
+      startDate: _start!,
+      endDate: _end!,
+    );
+
     final success = await vm.saveCampaign(
-      campaign: CampaignModel(
-        id: widget.campaign.id,
-        saloonId: widget.saloonId,
-        title: _titleController.text.trim(),
-        description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
-        discountType: _discountType,
-        discountValue: val,
-        startDate: _start!,
-        endDate: _end!,
-      ),
+      campaign: updated,
       selectedSaloonServiceIds: _selectedServiceIds.toList(),
       campaignId: widget.campaign.id,
       saloonId: widget.saloonId,
@@ -132,63 +142,65 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
         const SnackBar(content: Text('Kampanya güncellendi.')),
       );
       Navigator.of(context).pop(true);
-    } else if (!success) {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(vm.errorMessage ?? 'Bilinmeyen hata')),
+        SnackBar(content: Text(vm.errorMessage ?? 'Güncelleme başarısız.')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loadingServices) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Kampanya Düzenle')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _save,
-        label: const Text('Güncelle'),
-        icon: const Icon(Icons.save),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
             Text('Detaylar', style: AppTextStyles.headline3.copyWith(color: AppColors.primaryColor)),
             const SizedBox(height: 8),
-            TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'Başlık')),
+            TextField(controller: _titleCtrl, decoration: const InputDecoration(labelText: 'Başlık')),
             const SizedBox(height: 8),
-            TextField(controller: _descController, decoration: const InputDecoration(labelText: 'Açıklama (opsiyonel)')),
-            const SizedBox(height: 8),
-            Row(children: [
-              Expanded(
-                child: DropdownButtonFormField<DiscountType>(
-                  value: _discountType,
-                  items: const [
-                    DropdownMenuItem(value: DiscountType.percent, child: Text('% Yüzde')),
-                    DropdownMenuItem(value: DiscountType.fixed, child: Text('₺ Sabit')),
-                  ],
-                  onChanged: (v) => setState(() => _discountType = v!),
-                  decoration: const InputDecoration(labelText: 'İndirim Tipi'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _discountValueController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    labelText: _discountType == DiscountType.percent ? 'İndirim (%)' : 'İndirim (₺)',
+            TextField(controller: _descCtrl, decoration: const InputDecoration(labelText: 'Açıklama (opsiyonel)')),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<DiscountType>(
+                    value: _discountType,
+                    decoration: const InputDecoration(labelText: 'İndirim Tipi'),
+                    items: const [
+                      DropdownMenuItem(value: DiscountType.percent, child: Text('% Yüzde')),
+                      DropdownMenuItem(value: DiscountType.fixed, child: Text('₺ Sabit')),
+                    ],
+                    onChanged: (v) => setState(() => _discountType = v!),
                   ),
                 ),
-              ),
-            ]),
-            const SizedBox(height: 12),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    controller: _discountValueCtrl,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: _discountType == DiscountType.percent ? 'İndirim (%)' : 'İndirim (₺)',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             ListTile(
               title: const Text('Tarih Aralığı'),
               subtitle: Text(
                 _start == null || _end == null
                     ? 'Seçilmedi'
-                    : '${_dateFmt.format(_start!)} → ${_dateFmt.format(_end!)}',
+                    : '${_fmt.format(_start!)} → ${_fmt.format(_end!)}',
               ),
               trailing: OutlinedButton.icon(
                 onPressed: _pickRange,
@@ -200,8 +212,8 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
             Text('Hizmet Seçimi', style: AppTextStyles.headline3.copyWith(color: AppColors.primaryColor)),
             const SizedBox(height: 8),
             ..._services.map((s) {
-              final sel = _selectedServiceIds.contains(s.id);
-              final d = double.tryParse(_discountValueController.text);
+              final checked = _selectedServiceIds.contains(s.id);
+              final d = double.tryParse(_discountValueCtrl.text);
               double? discounted;
               if (d != null && d > 0) {
                 discounted = _discountType == DiscountType.percent
@@ -209,11 +221,14 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
                     : (s.price - d).clamp(0, double.infinity);
               }
               return CheckboxListTile(
-                value: sel,
-                onChanged: (v) {
+                value: checked,
+                onChanged: (yes) {
                   setState(() {
-                    if (v == true) _selectedServiceIds.add(s.id);
-                    else _selectedServiceIds.remove(s.id);
+                    if (yes == true) {
+                      _selectedServiceIds.add(s.id);
+                    } else {
+                      _selectedServiceIds.remove(s.id);
+                    }
                   });
                 },
                 title: Text(s.serviceName),
@@ -224,7 +239,12 @@ class _CampaignEditScreenState extends State<CampaignEditScreen> {
                 ),
               );
             }),
-            const SizedBox(height: 80),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.save),
+              label: const Text('Güncelle'),
+              onPressed: _save,
+            ),
           ],
         ),
       ),

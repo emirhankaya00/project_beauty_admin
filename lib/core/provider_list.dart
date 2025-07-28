@@ -9,6 +9,8 @@ import 'package:project_beauty_admin/viewmodels/staff_viewmodel.dart';
 import 'package:project_beauty_admin/viewmodels/comments_viewmodel.dart'; // Yorumlar ViewModel'i
 import 'package:project_beauty_admin/viewmodels/campaigns_viewmodel.dart';
 
+import '../viewmodels/saloon_viewmodel.dart';
+
 final List<SingleChildWidget> appProviders = [
   ChangeNotifierProvider(create: (_) => AuthViewModel()),
   ChangeNotifierProvider(create: (_) => ServiceViewModel()),
@@ -16,4 +18,6 @@ final List<SingleChildWidget> appProviders = [
   ChangeNotifierProvider(create: (_) => ReservationViewModel()),
   ChangeNotifierProvider(create: (_) => CommentsViewModel()), // Yorumları ekledik
   ChangeNotifierProvider(create: (_) => CampaignsViewModel()),
+  ChangeNotifierProvider(create: (_) => SaloonViewModel()),
+
 ];

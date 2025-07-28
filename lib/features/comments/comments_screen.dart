@@ -1,4 +1,4 @@
-// lib/view/screens/comments/comments_screen.dart
+// lib/view/salons/comments/comments_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
