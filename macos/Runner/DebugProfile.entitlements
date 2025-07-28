@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+
+    <!-- Supabase bağlantısı için gerekli -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+
+    <!-- Eğer uygulama kendi içinde bir sunucu çalıştırıyorsa, buna da izin verilir -->
+    <key>com.apple.security.network.server</key>
+    <true/>
+
+    <!-- Gelişmiş Flutter performansı için gerekli olabilir -->
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+</dict>
+</plist>
