@@ -1,29 +1,31 @@
 // lib/data/models/campaign_model.dart
 
-import 'package:flutter/foundation.dart';
-// Bu model, bir hizmetin kampanya içindeki temsilidir.
-// Kendi ServiceModel'inize göre uyarlamanız gerekebilir.
-import 'package:project_beauty_admin/data/models/service_model.dart';
+enum DiscountType { percent, fixed, percentage }
 
-// Veritabanındaki 'discount_type' ile eşleşen enum
-enum DiscountType { percentage, fixed }
+extension DiscountTypeX on DiscountType {
+  String get dbValue => this == DiscountType.percent ? 'percent' : 'fixed';
 
-@immutable
+  static DiscountType parse(dynamic v) {
+    final s = (v ?? '').toString().toLowerCase().trim();
+    if (s == 'percent' || s == 'percentage' || s == '%') return DiscountType.percent;
+    // olası eşdeğerler
+    if (s == 'fixed' || s == 'try' || s == 'tl' || s == '₺') return DiscountType.fixed;
+    // varsayılan
+    return DiscountType.percent;
+  }
+}
+
 class CampaignModel {
   final String id;
   final String saloonId;
   final String title;
   final String? description;
-  final DiscountType discountType;
+  final DiscountType discountType; // enum oldu
   final double discountValue;
   final DateTime startDate;
   final DateTime endDate;
-  // DİKKAT: Bu liste, veritabanından JOIN ile çekilen hizmetleri tutacak.
-  // Henüz bu hizmetleri tutan bir modeliniz yoksa, geçici olarak Map<String, dynamic> kullanabiliriz.
-  // Şimdilik basit bir ServiceModel listesi olduğunu varsayalım.
-  final List<ServiceModel> services;
 
-  const CampaignModel({
+  CampaignModel({
     required this.id,
     required this.saloonId,
     required this.title,
@@ -32,48 +34,48 @@ class CampaignModel {
     required this.discountValue,
     required this.startDate,
     required this.endDate,
-    this.services = const [], // Varsayılan olarak boş liste
   });
 
-  factory CampaignModel.fromJson(Map<String, dynamic> json) {
-    // Veritabanından gelen 'campaign_services' listesini ServiceModel listesine çeviriyoruz.
-    // Bu kısım, Supabase'den veriyi nasıl çektiğinize göre değişebilir.
-    final List<ServiceModel> parsedServices = [];
-    if (json['campaign_services'] is List) {
-      for (var serviceEntry in (json['campaign_services'] as List)) {
-        if (serviceEntry['services'] != null) {
-          // 'services' tablosundan gelen veriyi parse et
-          parsedServices.add(ServiceModel.fromJson(serviceEntry['services']));
-        }
-      }
-    }
+  Map<String, dynamic> toInsertMap() => {
+    'saloon_id': saloonId,
+    'title': title,
+    'description': description,
+    'discount_type': discountType.dbValue, // enum -> string
+    'discount_value': discountValue,
+    'start_date': startDate.toUtc().toIso8601String(),
+    'end_date': endDate.toUtc().toIso8601String(),
+  };
 
+  factory CampaignModel.fromJson(Map<String, dynamic> j) => CampaignModel(
+    id: j['id'] as String,
+    saloonId: j['saloon_id'] as String,
+    title: j['title'] as String,
+    description: j['description'] as String?,
+    discountType: DiscountTypeX.parse(j['discount_type']),
+    discountValue: (j['discount_value'] as num).toDouble(),
+    startDate: DateTime.parse(j['start_date']).toLocal(),
+    endDate: DateTime.parse(j['end_date']).toLocal(),
+  );
+
+  CampaignModel copyWith({
+    String? id,
+    String? saloonId,
+    String? title,
+    String? description,
+    DiscountType? discountType,
+    double? discountValue,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
     return CampaignModel(
-      id: json['id'] as String? ?? '',
-      saloonId: json['saloon_id'] as String? ?? '',
-      title: json['title'] as String? ?? 'Başlıksız Kampanya',
-      description: json['description'] as String?,
-      discountType: (json['discount_type'] == 'percentage')
-          ? DiscountType.percentage
-          : DiscountType.fixed,
-      discountValue: (json['discount_value'] as num?)?.toDouble() ?? 0.0,
-      startDate: DateTime.tryParse(json['start_date'] as String? ?? '') ?? DateTime.now(),
-      endDate: DateTime.tryParse(json['end_date'] as String? ?? '') ?? DateTime.now(),
-      services: parsedServices,
+      id: id ?? this.id,
+      saloonId: saloonId ?? this.saloonId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      discountType: discountType ?? this.discountType,
+      discountValue: discountValue ?? this.discountValue,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
     );
-  }
-
-  // Veritabanına göndermek için JSON'a dönüştüren metot.
-  // 'services' hariç tutulur çünkü o ayrı bir tabloya yazılır.
-  Map<String, dynamic> toJson() {
-    return {
-      'saloon_id': saloonId,
-      'title': title,
-      'description': description,
-      'discount_type': discountType.name, // enum'ı string'e çevirir
-      'discount_value': discountValue,
-      'start_date': startDate.toIso8601String(),
-      'end_date': endDate.toIso8601String(),
-    };
   }
 }

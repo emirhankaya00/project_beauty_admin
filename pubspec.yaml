@@ -1,42 +1,42 @@
 name: project_beauty_admin
 description: "A new Flutter project for Beauty Salon Admin Panel."
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.4.1 <4.0.0'
+  sdk: ">=3.4.1 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  # Supabase ile iletişim kurmak için temel paket.
+  # Yerelleştirme (DatePicker vb. için gerekli)
+  flutter_localizations:
+    sdk: flutter
+
+  # Supabase
   supabase_flutter: ^2.5.2
 
-  # State management için vazgeçilmez provider paketi.
+  # State management
   provider: ^6.1.2
 
-  # Gizli anahtarları (.env) yönetmek için gereken paket.
+  # .env
   flutter_dotenv: ^5.1.0
 
-  # Tarih ve saat formatlaması için.
-  intl: ^0.19.0
+  # Tarih/saat
+  intl: ^0.20.2
 
-  # Google'ın yazı tiplerini projeye kolayca dahil etmek için.
+  # UI
   google_fonts: ^6.2.1
-
-  # Material Design ikonlarını kullanmak için.
   cupertino_icons: ^1.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
 
-  # .env dosyasını projenin tanıması için bu satırlar ŞART.
   assets:
     - .env

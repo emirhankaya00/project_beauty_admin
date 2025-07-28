@@ -1,96 +1,94 @@
-// lib/data/repositories/campaign_repository.dart
-
-import 'package:flutter/foundation.dart';
+import 'package:project_beauty_admin/core/supabase_init.dart';
 import 'package:project_beauty_admin/data/models/campaign_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:project_beauty_admin/data/models/saloon_service_list_item.dart';
 
 class CampaignRepository {
-  final SupabaseClient _client;
-  CampaignRepository(this._client);
+  /// Salona ait hizmetleri (saloon_services + services join) getir
+  Future<List<SaloonServiceListItem>> fetchSaloonServices(String saloonId) async {
+    final res = await supa
+        .from('saloon_services')
+        .select('''
+          id,
+          price,
+          services:service_id(service_name)
+        ''')
+        .eq('saloon_id', saloonId)
+        .eq('is_active', true)
+        .order('id');
 
-  /// Belirtilen salona ait tüm kampanyaları, bağlı hizmetleriyle birlikte çeker.
-  Future<List<CampaignModel>> getCampaignsForSaloon(String saloonId) async {
-    try {
-      final response = await _client
-          .from('campaigns')
-          .select('''
-            *,
-            campaign_services (
-              services (*)
-            )
-          ''')
-          .eq('saloon_id', saloonId)
-          .order('created_at', ascending: false);
-
-      if (response is List) {
-        return response
-            .map((data) => CampaignModel.fromJson(data as Map<String, dynamic>))
-            .toList();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('Kampanyaları çekerken hata: $e');
-      throw Exception('Kampanyalar yüklenemedi.');
-    }
+    return (res as List)
+        .map((e) => SaloonServiceListItem.fromJoin(e))
+        .toList();
   }
 
-  /// Yeni bir kampanya oluşturur veya mevcut bir kampanyayı günceller.
-  /// Bu işlemi atomik (bölünmez) hale getirmek için bir veritabanı fonksiyonu (RPC) kullanmak en iyisidir.
-  /// Şimdilik bu fonksiyonu taslak olarak bırakıyoruz, daha sonra bir RPC ile güçlendirebiliriz.
-  Future<void> saveCampaign({
-    required CampaignModel campaign,
-    required List<String> selectedSaloonServiceIds, // Seçilen 'saloon_services' ID'leri
-    String? campaignId, // Eğer null değilse, güncelleme yapılır
+  /// Çakışan kampanya var mı? (tarih kesişimi)
+  Future<List<Map<String, dynamic>>> findOverlaps({
+    required List<String> saloonServiceIds,
+    required DateTime start,
+    required DateTime end,
   }) async {
-    try {
-      // Adım 1: Ana kampanya verisini 'campaigns' tablosuna ekle veya güncelle.
-      final campaignData = campaign.toJson();
-
-      // Upsert, ID varsa günceller, yoksa ekler.
-      final savedCampaign = await _client
-          .from('campaigns')
-          .upsert(campaignData)
-          .select()
-          .single();
-
-      final newCampaignId = savedCampaign['id'];
-
-      // Adım 2: 'campaign_services' tablosunu yönet.
-      // Önce bu kampanyaya ait eski hizmet bağlantılarını temizle.
-      await _client
-          .from('campaign_services')
-          .delete()
-          .eq('campaign_id', newCampaignId);
-
-      // Sonra yeni seçilen hizmetleri ekle.
-      if (selectedSaloonServiceIds.isNotEmpty) {
-        final List<Map<String, dynamic>> campaignServiceRows =
-        selectedSaloonServiceIds.map((serviceId) => {
-          'campaign_id': newCampaignId,
-          'saloon_service_id': serviceId,
-        }).toList();
-
-        await _client.from('campaign_services').insert(campaignServiceRows);
-      }
-
-    } catch (e) {
-      debugPrint('Kampanya kaydedilirken hata: $e');
-      throw Exception('Kampanya kaydedilemedi.');
-    }
+    if (saloonServiceIds.isEmpty) return [];
+    final res = await supa
+        .from('campaign_services')
+        .select('''
+          saloon_service_id,
+          campaigns:campaign_id(id, title, start_date, end_date)
+        ''')
+        .inFilter('saloon_service_id', saloonServiceIds)
+        .lte('campaigns.start_date', end.toUtc().toIso8601String())
+        .gte('campaigns.end_date', start.toUtc().toIso8601String());
+    // Not: lte/gte karşılıklı koşulla “overlap”ı kapsar.
+    return (res as List).cast<Map<String, dynamic>>();
   }
 
-  /// Belirtilen kampanyayı siler.
-  /// Veritabanında ON DELETE CASCADE ayarlandığı için,
-  /// bu kampanyaya bağlı 'campaign_services' kayıtları da otomatik silinecektir.
-  Future<void> deleteCampaign(String campaignId) async {
-    try {
-      await _client
-          .from('campaigns')
-          .delete()
-          .eq('id', campaignId);
-    } catch (e) {
-      debugPrint('Kampanya silinirken hata: $e');
-      throw Exception('Kampanya silinemedi.');
+  /// Kampanya + ilişkileri tek seferde oluştur
+  Future<String> createCampaign({
+    required CampaignModel data,
+    required List<String> selectedSaloonServiceIds,
+  }) async {
+    // 1) Çakışma kontrolü
+    final overlaps = await findOverlaps(
+      saloonServiceIds: selectedSaloonServiceIds,
+      start: data.startDate,
+      end: data.endDate,
+    );
+    if (overlaps.isNotEmpty) {
+      throw Exception('Seçilen hizmetlerden bazıları bu tarih aralığında zaten kampanyalı.');
     }
+
+    // 2) campaigns insert (id döner)
+    final inserted = await supa.from('campaigns')
+        .insert(data.toInsertMap())
+        .select()
+        .single();
+
+    final String campaignId = inserted['id'];
+
+    // 3) campaign_services bulk insert
+    final links = selectedSaloonServiceIds.map((sid) => {
+      'campaign_id': campaignId,
+      'saloon_service_id': sid,
+    }).toList();
+
+    if (links.isNotEmpty) {
+      await supa.from('campaign_services').insert(links);
+    }
+
+    return campaignId;
+  }
+
+  Future<List<CampaignModel>> listCampaigns(String saloonId) async {
+    final res = await supa
+        .from('campaigns')
+        .select()
+        .eq('saloon_id', saloonId)
+        .order('start_date', ascending: false);
+    return (res as List).map((e) => CampaignModel.fromJson(e)).toList();
+  }
+
+  Future<void> deleteCampaign(String campaignId) async {
+    // önce linkleri sil
+    await supa.from('campaign_services').delete().eq('campaign_id', campaignId);
+    await supa.from('campaigns').delete().eq('id', campaignId);
   }
 }

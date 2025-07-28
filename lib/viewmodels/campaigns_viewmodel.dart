@@ -1,5 +1,3 @@
-// lib/viewmodels/campaigns_viewmodel.dart
-
 import 'package:flutter/material.dart';
 import 'package:project_beauty_admin/data/models/campaign_model.dart';
 import 'package:project_beauty_admin/repositories/campaign_repository.dart';
@@ -9,76 +7,95 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 enum ViewState { idle, loading, error }
 
 class CampaignsViewModel extends ChangeNotifier {
-  // Repository'yi Supabase client ile başlatıyoruz.
-  final CampaignRepository _repository = CampaignRepository(Supabase.instance.client);
+  // Repository: argümansız (çünkü ctor 0 parametre bekliyor)
+  final CampaignRepository _repository = CampaignRepository();
 
   // --- State (Durum) Değişkenleri ---
   ViewState _state = ViewState.idle;
   String? _errorMessage;
   List<CampaignModel> _campaigns = [];
 
-  // --- Getter'lar (Arayüzün bu verilere güvenli erişimi için) ---
+  // --- Getter'lar ---
   ViewState get state => _state;
+  bool get isBusy => _state == ViewState.loading;
   String? get errorMessage => _errorMessage;
   List<CampaignModel> get campaigns => _campaigns;
 
-  // --- Özel Metotlar ---
-
-  /// ViewModel'in durumunu günceller ve arayüzü yeniden çizmesi için sinyal gönderir.
+  // --- İç yardımcılar ---
   void _setState(ViewState newState) {
     _state = newState;
     notifyListeners();
   }
 
-  // --- Public Metotlar (Arayüzden Çağrılacak Olanlar) ---
+  void _setError(Object e) {
+    if (e is PostgrestException) {
+      _errorMessage = e.message;
+    } else {
+      _errorMessage = e.toString();
+    }
+  }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  // --- Public Metotlar ---
 
   /// Belirtilen salonun kampanyalarını yükler.
   Future<void> fetchCampaigns(String saloonId) async {
     _setState(ViewState.loading);
     try {
-      _campaigns = await _repository.getCampaignsForSaloon(saloonId);
+      // getCampaignsForSaloon yerine listCampaigns kullan
+      _campaigns = await _repository.listCampaigns(saloonId);
       _errorMessage = null;
       _setState(ViewState.idle);
     } catch (e) {
-      _errorMessage = e.toString();
+      _setError(e);
       _setState(ViewState.error);
     }
   }
 
-  /// Yeni bir kampanya oluşturur veya mevcut olanı günceller.
+  /// Yeni bir kampanya oluşturur (create).
+  /// Not: Repo'da update yoksa yalnızca create yapıyoruz.
   Future<bool> saveCampaign({
     required CampaignModel campaign,
     required List<String> selectedSaloonServiceIds,
-    String? campaignId,
-    required String saloonId, // Hangi salona ait olduğunu bilmeliyiz
+    String? campaignId, // şimdilik kullanılmıyor (update yoksa)
+    required String saloonId,
   }) async {
     _setState(ViewState.loading);
     try {
-      await _repository.saveCampaign(
-        campaign: campaign,
+      // saveCampaign yerine createCampaign çağır
+      await _repository.createCampaign(
+        data: campaign,
         selectedSaloonServiceIds: selectedSaloonServiceIds,
-        campaignId: campaignId,
       );
-      // İşlem başarılı olduktan sonra listeyi tazeleyelim.
+
       await fetchCampaigns(saloonId);
+      _errorMessage = null;
+      _setState(ViewState.idle);
       return true;
     } catch (e) {
-      _errorMessage = e.toString();
+      _setError(e);
       _setState(ViewState.error);
       return false;
     }
   }
 
-  /// Bir kampanyayı siler.
+  /// Bir kampanyayı siler (iyimser güncelleme ile).
   Future<bool> deleteCampaign(String campaignId, String saloonId) async {
+    final old = List<CampaignModel>.from(_campaigns);
+    _campaigns.removeWhere((c) => c.id == campaignId);
+    notifyListeners();
+
     try {
       await _repository.deleteCampaign(campaignId);
-      // İşlem başarılı olduktan sonra listeden ilgili kampanyayı çıkaralım.
-      _campaigns.removeWhere((c) => c.id == campaignId);
-      notifyListeners();
+      await fetchCampaigns(saloonId);
       return true;
     } catch (e) {
-      _errorMessage = e.toString();
+      _setError(e);
+      _campaigns = old;
       notifyListeners();
       return false;
     }
