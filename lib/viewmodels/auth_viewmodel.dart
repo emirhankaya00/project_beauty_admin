@@ -1,10 +1,15 @@
-import 'package:flutter/material.dart';
+// lib/viewmodels/auth_viewmodel.dart
 
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:project_beauty_admin/main.dart';
+// DÜZELTME: main.dart import'u kaldırıldı, bu bir anti-patterndir.
 import '../data/models/admin_model.dart';
 
 class AuthViewModel with ChangeNotifier {
+  // DÜZELTME: Artık global 'supabase' değişkeni yerine,
+  // Supabase.instance.client kullanarak Supabase'e ulaşıyoruz.
+  final _supabase = Supabase.instance.client;
+
   bool _isLoading = false;
   String? _errorMessage;
   AdminModel? _currentAdmin;
@@ -22,8 +27,8 @@ class AuthViewModel with ChangeNotifier {
     _errorMessage = null;
 
     try {
-      // 1. ADIM: SADECE KİMLİK DOĞRULAMA
-      final authResponse = await supabase.auth.signInWithPassword(
+      // 1. ADIM: KİMLİK DOĞRULAMA
+      final authResponse = await _supabase.auth.signInWithPassword( // DÜZELTME
         email: email,
         password: password,
       );
@@ -35,32 +40,29 @@ class AuthViewModel with ChangeNotifier {
       final user = authResponse.user!;
 
       // 2. ADIM: YETKİ KONTROLÜ
-      final adminData = await supabase
+      final adminData = await _supabase // DÜZELTME
           .from('admins')
           .select()
           .eq('admin_id', user.id)
-          .single(); // Kayıt yoksa hata fırlatır
+          .single();
 
-      // 3. ADIM: GÜVENLİ MODELİ KULLANARAK VERİYİ İŞLEME
+      // 3. ADIM: VERİYİ İŞLEME
       _currentAdmin = AdminModel.fromJson(adminData);
 
       _setLoading(false);
       return true;
 
     } on PostgrestException catch (_) {
-      // Bu hata, kullanıcı doğrulandı ama 'admins' tablosunda bulunamadı demektir.
-      await supabase.auth.signOut();
+      await _supabase.auth.signOut(); // DÜZELTME
       _errorMessage = 'Bu panele erişim yetkiniz bulunmamaktadır.';
       _setLoading(false);
       return false;
     } on AuthException catch (e) {
-      // BU, SENİN ALDIĞIN ASIL HATA
       debugPrint('>>> AUTH HATASI: ${e.message}');
-      _errorMessage = e.message; // 'Invalid login credentials'
+      _errorMessage = e.message;
       _setLoading(false);
       return false;
     } catch (e) {
-      // Bu, bizim 'Null' hatasını veren genel hata yakalayıcıydı.
       debugPrint('>>> BİLİNMEYEN HATA: ${e.toString()}');
       _errorMessage = 'Bilinmeyen bir hata oluştu: ${e.toString()}';
       _setLoading(false);
@@ -69,7 +71,7 @@ class AuthViewModel with ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await supabase.auth.signOut();
+    await _supabase.auth.signOut(); // DÜZELTME
     _currentAdmin = null;
     notifyListeners();
   }

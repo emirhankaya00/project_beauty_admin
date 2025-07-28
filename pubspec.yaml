@@ -1,53 +1,42 @@
 name: project_beauty_admin
 description: "A new Flutter project for Beauty Salon Admin Panel."
-# 'publish_to: none' satırı, bu paketin yanlışlıkla pub.dev'e gönderilmesini engeller.
 publish_to: 'none'
-
-# Aşağıdaki satır, uygulamanızın versiyonunu ve yapı numarasını tanımlar.
-# Versiyon numarası, noktalarla ayrılmış üç sayıdan oluşur, ardından isteğe bağlı
-# bir yapı numarası gelir ve '+' ile ayrılır.
 version: 1.0.0+1
 
 environment:
   sdk: '>=3.4.1 <4.0.0'
 
-# Bağımlılıklar, uygulamanızın çalışması için gereken diğer paketleri belirtir.
 dependencies:
   flutter:
     sdk: flutter
-  
-  # Material Design ikonlarını ve bileşenlerini kullanmak için.
-  cupertino_icons: ^1.0.6
-  intl:
-  supabase_flutter:
-  provider:
-  # Google'ın yazı tiplerini projenize kolayca dahil etmek için.
+
+  # Supabase ile iletişim kurmak için temel paket.
+  supabase_flutter: ^2.5.2
+
+  # State management için vazgeçilmez provider paketi.
+  provider: ^6.1.2
+
+  # Gizli anahtarları (.env) yönetmek için gereken paket.
+  flutter_dotenv: ^5.1.0
+
+  # Tarih ve saat formatlaması için.
+  intl: ^0.19.0
+
+  # Google'ın yazı tiplerini projeye kolayca dahil etmek için.
   google_fonts: ^6.2.1
+
+  # Material Design ikonlarını kullanmak için.
+  cupertino_icons: ^1.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # "flutter lint" komutunun analiz ettiği kod için lint kurallarını içerir.
   flutter_lints: ^4.0.0
 
-# Aşağıdaki bölüm Flutter'a özeldir.
 flutter:
-
-  # Bu satır, Material Icons fontunun uygulamanıza dahil edilmesini sağlar.
-  # Böylece Material Icons sınıfındaki ikonları kullanabilirsiniz.
-  # --- ÖNEMLİ DÜZELTME BURADA ---
   uses-material-design: true
 
-  # Uygulamanıza varlık (asset) eklemek için, aşağıdaki gibi bir assets bölümü ekleyin:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
-
-  # Örnek olarak yazı tipi eklemek için:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
+  # .env dosyasını projenin tanıması için bu satırlar ŞART.
+  assets:
+    - .env

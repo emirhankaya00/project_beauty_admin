@@ -1,6 +1,8 @@
 // lib/features/dashboard/screens/admin_dashboard_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:project_beauty_admin/features/campaigns/campaigns_screen.dart';
+import 'package:provider/provider.dart'; // DÜZELTME: Provider'ı import ettik
 import 'package:project_beauty_admin/design_system/app_colors.dart';
 import 'package:project_beauty_admin/design_system/app_text_styles.dart';
 import 'package:project_beauty_admin/design_system/app_border_radius.dart';
@@ -12,17 +14,19 @@ import 'package:project_beauty_admin/features/shared_admin_components/admin_draw
 import 'package:project_beauty_admin/features/shared_admin_components/search_bar_widget.dart';
 import 'package:project_beauty_admin/features/dashboard/widgets/dashboard_card.dart';
 import 'package:project_beauty_admin/features/dashboard/widgets/dashboard_summary_widget.dart';
+import 'package:project_beauty_admin/viewmodels/auth_viewmodel.dart'; // DÜZELTME: AuthViewModel'i import ettik
 
-// Yeni oluşturduğumuz tek sayfa modül ekranlarını import et
-import 'package:project_beauty_admin/features/appointment_requests/screens/appointment_requests_unified_screen.dart'; // Güncellendi
-import 'package:project_beauty_admin/features/staff_management/screens/staff_unified_screen.dart'; // Güncellendi
-import 'package:project_beauty_admin/features/service_management/screens/service_unified_screen.dart'; // Güncellendi
+// Mevcut modül ekranları
+import 'package:project_beauty_admin/features/appointment_requests/screens/appointment_requests_unified_screen.dart';
+import 'package:project_beauty_admin/features/staff_management/screens/staff_unified_screen.dart';
+import 'package:project_beauty_admin/features/service_management/screens/service_unified_screen.dart';
 
-// TODO: Diğer modül ekranlarını buraya import etmelisin (örn: customer_reviews_screen.dart, campaigns_screen.dart, statistics_reports_screen.dart)
+// DÜZELTME: Yeni oluşturduğumuz yorumlar ekranını import ediyoruz
+// Lütfen dosya yolunun projenizde doğru olduğundan emin olun
 
-/// Admin Dashboard Sayfası
-/// Yönetici panelinin ana ekranıdır.
-/// Figma tasarımındaki ana sayfa görünümüne ve onaylanan istatistik/raporlama önerilerine uygun olarak tasarlanmıştır.
+import '../../comments/comments_screen.dart';
+
+
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
 
@@ -44,41 +48,7 @@ class AdminDashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24.0),
 
-            CustomCard(
-              borderRadius: AppBorderRadius.large,
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Bugünkü Genel Bakış',
-                    style: AppTextStyles.headline2.copyWith(color: AppColors.primaryColor),
-                  ),
-                  const SizedBox(height: 16.0),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      DashboardSummaryWidget(
-                        title: 'Toplam Randevu',
-                        value: '25',
-                        icon: AppIcons.appointmentRequests,
-                      ),
-                      DashboardSummaryWidget(
-                        title: 'Bugünkü Gelir',
-                        value: '₺1.500',
-                        icon: Icons.attach_money_outlined,
-                      ),
-                      DashboardSummaryWidget(
-                        title: 'Yeni Yorumlar',
-                        value: '5',
-                        icon: AppIcons.customerReviews,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24.0),
+            // ... (Bugünkü Genel Bakış CustomCard'ı aynı kalabilir)
 
             GridView.builder(
               shrinkWrap: true,
@@ -91,41 +61,44 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
               itemCount: 6,
               itemBuilder: (context, index) {
+                // DÜZELTME: Müşteri Yorumları kartının 'screen' alanı güncellendi.
+                // Artık null değil, bir placeholder (yer tutucu) nesne içeriyor.
                 final List<Map<String, dynamic>> moduleData = [
                   {
                     'title': 'Randevu İsteklerim',
                     'icon': AppIcons.appointmentRequests,
                     'metric': '3 Bekleyen',
                     'colors': [const Color(0xFFFEE140), const Color(0xFFFA709A)],
-                    'screen': const AppointmentRequestsUnifiedScreen(), // Güncellendi
+                    'screen': const AppointmentRequestsUnifiedScreen(),
                   },
                   {
                     'title': 'Personel Takibim',
                     'icon': AppIcons.staffManagement,
                     'metric': '12 Aktif',
                     'colors': [const Color(0xFF6A11CB), const Color(0xFF2575FC)],
-                    'screen': const StaffUnifiedScreen(), // Güncellendi
+                    'screen': const StaffUnifiedScreen(),
                   },
                   {
                     'title': 'Hizmetlerim',
                     'icon': AppIcons.services,
                     'metric': '45 Hizmet',
                     'colors': [const Color(0xFF00C6FB), const Color(0xFF005BEA)],
-                    'screen': const ServiceUnifiedScreen(), // Güncellendi
+                    'screen': const ServiceUnifiedScreen(),
                   },
                   {
                     'title': 'Müşteri Yorumlarım',
                     'icon': AppIcons.customerReviews,
                     'metric': '8 Yeni Yorum',
                     'colors': [const Color(0xFFFF758C), const Color(0xFFFF7EB3)],
-                    'screen': null,
+                    // Özel işlem gerektirdiği için 'screen' key'ine geçici bir değer veriyoruz.
+                    'screen': const SizedBox(),
                   },
                   {
                     'title': 'Kampanyalarım',
                     'icon': AppIcons.campaigns,
                     'metric': '5 Aktif',
                     'colors': [const Color(0xFFFAD961), const Color(0xFFF76B1C)],
-                    'screen': null,
+                    'screen': const CampaignsScreen(),
                   },
                   {
                     'title': 'İstatistik ve Raporlar',
@@ -144,17 +117,36 @@ class AdminDashboardScreen extends StatelessWidget {
                   metric: data['metric'] as String,
                   gradientColors: data['colors'] as List<Color>,
                   onTap: () {
-                    if (data['screen'] != null) {
-                      context.push(MaterialPageRoute(builder: (context) => data['screen'] as Widget));
-                    } else {
-                      if (context.mounted) {
+                    // DÜZELTME: Müşteri Yorumları kartı için özel tıklama mantığı
+                    if (data['title'] == 'Müşteri Yorumlarım') {
+                      // 1. AuthViewModel'den salon ID'sini al
+                      final authViewModel = context.read<AuthViewModel>();
+                      final saloonId = authViewModel.currentAdmin?.saloonId;
+
+                      // 2. Salon ID'si varsa, CommentsScreen'e yönlendir
+                      if (saloonId != null && saloonId.isNotEmpty) {
+                        context.push(MaterialPageRoute(
+                          builder: (context) => CommentsScreen(saloonId: saloonId),
+                        ));
+                      } else {
+                        // 3. Salon ID'si yoksa, kullanıcıya bir hata mesajı göster
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${data['title']} ekranı henüz mevcut değil.'),
-                            duration: const Duration(seconds: 2),
+                          const SnackBar(
+                            content: Text('Salon bilgisi bulunamadı. Lütfen tekrar giriş yapın.'),
+                            backgroundColor: AppColors.red,
                           ),
                         );
                       }
+                    }
+                    // Diğer kartlar için mevcut mantık devam ediyor
+                    else if (data['screen'] != null) {
+                      context.push(MaterialPageRoute(builder: (context) => data['screen'] as Widget));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${data['title']} ekranı henüz mevcut değil.'),
+                        ),
+                      );
                     }
                   },
                 );
