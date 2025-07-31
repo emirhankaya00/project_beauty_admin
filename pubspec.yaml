@@ -13,7 +13,7 @@ dependencies:
   # Yerelleştirme (DatePicker vb. için gerekli)
   flutter_localizations:
     sdk: flutter
-
+  fl_chart: ^0.68.0
   # Supabase
   supabase_flutter: ^2.5.2
 
@@ -37,6 +37,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
   assets:
     - .env
+    - assets/logos/

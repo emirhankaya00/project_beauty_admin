@@ -10,6 +10,8 @@ class AdminModel {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  var email;
+
   AdminModel({
     required this.adminId,
     required this.saloonId,

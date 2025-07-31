@@ -28,6 +28,13 @@ class AppTextStyles {
     color: AppColors.black,
   );
 
+  static TextStyle headline4 = GoogleFonts.poppins(
+    fontSize: 24.0,
+    fontWeight: FontWeight.bold,
+    color: AppColors.black,
+  );
+
+
   // Genel gövde metinleri için stil (normal boyut)
   static TextStyle bodyText1 = GoogleFonts.poppins(
     fontSize: 14.0,

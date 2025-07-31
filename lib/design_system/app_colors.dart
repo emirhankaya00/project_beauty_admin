@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Ana tema rengi: Kırmızımsı/Bordo tonu (#DE013F)
   // Figma tasarımında belirtilen ana renk.
-  static const Color primaryColor = Color(0xFFDE013F);
+  static const Color primaryColor = Color(0xFF5271FF);
   static const Color secondaryColor = Color(0xFF03DAC6);
   // İkincil renk: Çoğu arka plan ve kart içi için kullanılan beyaz.
   static const Color white = Colors.white;
@@ -20,6 +20,12 @@ class AppColors {
   // Genellikle ana tema rengiyle aynı veya ona yakın bir ton olabilir.
   static const Color strokeColor = Color(0xFFDE013F);
 
+  static const Color lightBlue = Color(0xFFE0F7FA);      // Açık mavi
+  static const Color lightGreen = Color(0xFFE8F5E9);     // Açık yeşil
+  static const Color lightPink = Color(0xFFFCE4EC);      // Açık pembe
+  static const Color lightYellow = Color(0xFFFFF9C4);    // Açık sarı
+  static const Color lightCyan = Color(0xFFE0F2F1);      // Açık cam göbeği
+  static const Color lightCoral = Color(0xFFFFEBEE);
   // Metin renkleri
   static const Color black = Colors.black;
   static const Color grey = Colors.grey;

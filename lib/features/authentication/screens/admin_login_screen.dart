@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:project_beauty_admin/design_system/app_text_styles.dart';
-import 'package:project_beauty_admin/design_system/widgets/custom_button.dart';
-import 'package:project_beauty_admin/design_system/widgets/custom_input_field.dart';
-import 'package:project_beauty_admin/features/dashboard/screens/admin_dashboard_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:project_beauty_admin/design_system/app_colors.dart';
+import 'package:project_beauty_admin/design_system/app_text_styles.dart';
+import 'package:project_beauty_admin/features/dashboard/screens/admin_dashboard_screen.dart';
 import '../../../viewmodels/auth_viewmodel.dart';
 
 class AdminLoginScreen extends StatefulWidget {
@@ -22,7 +21,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final authViewModel = context.read<AuthViewModel>();
-
     final success = await authViewModel.login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
@@ -31,7 +29,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     if (success && mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
+        MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
       );
     }
   }
@@ -39,8 +37,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.primaryColor,
       body: Consumer<AuthViewModel>(
         builder: (context, viewModel, child) {
+          // Show error snack
           if (viewModel.errorMessage != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -50,36 +50,135 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             });
           }
 
-          return Center(
+          return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('Admin Paneli', style: AppTextStyles.headline1),
-                    const SizedBox(height: 40),
-                    CustomInputField(
-                      controller: _emailController,
-                      hintText: 'E-posta',
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      validator: (value) => value!.isEmpty ? 'Bu alan boş bırakılamaz' : null,
+                    const SizedBox(height: 48),
+                    // Logo
+                    Center(
+                      child: Image.asset(
+                        'assets/logos/3.png',
+                        width: 64,
+                        height: 64,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    CustomInputField(
-                      controller: _passwordController,
-                      hintText: 'Şifre',
-                      obscureText: true,
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      validator: (value) => value!.isEmpty ? 'Bu alan boş bırakılamaz' : null,
+                    Text(
+                      'Admin Giriş',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.headline1.copyWith(color: Colors.white),
+                    ),
+                    const SizedBox(height: 48),
+
+                    // E-posta / kullanıcı label
+                    Text(
+                      'Kullanıcı Adı veya E-posta',
+                      style: AppTextStyles.bodyText2.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _emailController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Kullanıcı adı veya e-posta giriniz.',
+                        hintStyle: TextStyle(color: Colors.white54),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.white54),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                      ),
+                      validator: (val) => (val == null || val.isEmpty) ? 'Bu alan boş bırakılamaz' : null,
                     ),
                     const SizedBox(height: 24),
+
+                    // Şifre label
+                    Text(
+                      'Şifre',
+                      style: AppTextStyles.bodyText2.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Şifre giriniz',
+                        hintStyle: TextStyle(color: Colors.white54),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.white54),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                      ),
+                      validator: (val) => (val == null || val.isEmpty) ? 'Bu alan boş bırakılamaz' : null,
+                    ),
+                    const SizedBox(height: 36),
+
+                    // Giriş Yap butonu or loading
                     viewModel.isLoading
-                        ? const CircularProgressIndicator()
-                        : CustomButton(
+                        ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                        : ElevatedButton(
                       onPressed: () => _handleLogin(context),
-                      child: const Text('Giriş Yap'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: Text(
+                        'Giriş Yap',
+                        style: AppTextStyles.bodyText1.copyWith(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.white54)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Google ile devam et',
+                            style: AppTextStyles.bodyText2.copyWith(color: Colors.white),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: Colors.white54)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Google buton
+                    Column(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.g_mobiledata, size: 48, color: Colors.white),
+                          onPressed: () {},
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Google',
+                          style: AppTextStyles.bodyText1.copyWith(color: Colors.white),
+                        ),
+                      ],
                     ),
                   ],
                 ),

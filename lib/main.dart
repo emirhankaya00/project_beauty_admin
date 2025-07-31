@@ -9,7 +9,7 @@ import 'package:project_beauty_admin/design_system/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'features/authentication/auth_gate.dart';
+import 'features/authentication/screens/admin_login_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,7 +64,8 @@ class MyApp extends StatelessWidget {
       // İstersen sabit TR dili kullan:
       // locale: const Locale('tr', 'TR'),
 
-      home: const AuthGate(),
+      // Uygulama başlarken direkt olarak login ekranını göster
+      home: const AdminLoginScreen(),
     );
   }
 }
