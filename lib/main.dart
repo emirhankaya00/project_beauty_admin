@@ -46,7 +46,7 @@ void main() async {
     ),
   );
 }
-
+//
 /// Supabase istemcisine kolay erişim için global değişken.
 final supabase = Supabase.instance.client;
 
